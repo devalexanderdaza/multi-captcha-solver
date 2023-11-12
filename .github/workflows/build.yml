@@ -1,12 +1,15 @@
-# Workflow to build the module
-name: Build module
+# Workflow to build, version, and publish the module using Yarn
+name: Build, Version, and Publish
 
-# Trigger the workflow manually from the GitHub UI
+# Trigger the workflow manually from the GitHub UI or on every push to the main branch
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     # Set up the job to run on the latest version of Ubuntu
     runs-on: ubuntu-latest
 
@@ -22,18 +25,53 @@ jobs:
 
       # Install project dependencies without running audit
       - name: Install Dependencies
-        run: npm ci --no-audit
+        run: yarn install --frozen-lockfile
+
+      # Run semantic-release to determine the version and generate changelog
+      - name: Semantic Release
+        run: npx semantic-release
+
+      # Push the updated version and changelog back to the repo
+      - name: Push changes
+        run: git push origin main
+
+  build-and-publish:
+    # Set up the job to run on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+
+    # Define the steps to execute
+    steps:
+      # Check out the source code
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Set up Node.js environment using Volta
+      - name: Set up Node.js Environment
+        uses: volta-cli/action@v1
+
+      # Install project dependencies without running audit
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
 
       # Run ESLint for code linting (if ESLint is configured)
       - name: Run ESLint
-        run: npm run lint --if-present
+        run: yarn lint
 
       # Run tests
       - name: Run Tests
-        run: npm test
+        run: yarn test
 
       # Build the project (if build script is present)
       - name: Build Project
-        run: npm run build --if-present
+        run: yarn build
         env:
           CI: true
+
+      # Publish to npm
+      - name: Publish to npm
+        run: |
+          echo "//registry.yarnpkg.com/:_authToken=\${NPM_TOKEN}" > ~/.npmrc
+          yarn publish --new-version ${{ steps.get_version.outputs.new_version }}
+        env:
+          CI: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
