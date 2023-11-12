@@ -1,6 +1,7 @@
 import { ECaptchaSolverService } from "./mcs.enum.js";
 import { IMultiCaptchaSolver, IMultiCaptchaSolverOptions } from "./mcs.interface.js";
 import { AntiCaptchaService } from "./services/anticaptcha.service.js";
+import { TwoCaptchaService } from "./services/twocaptcha.service.js";
 
 export class MultiCaptchaSolver {
   // Captcha solver definition
@@ -20,19 +21,19 @@ export class MultiCaptchaSolver {
     if (options.captchaService === ECaptchaSolverService.AntiCaptcha) {
       this.captchaSolver = new AntiCaptchaService(options.apiKey);
     } else if (options.captchaService === ECaptchaSolverService.TwoCaptcha) {
-      // TODO - Implement the TwoCaptchaService
+      this.captchaSolver = new TwoCaptchaService(options.apiKey);
     } else {
       throw new Error("Invalid captcha service.");
     }
   }
 
   /**
-   * Get the balance of the captcha solver account.
+   * Get the balance of the captcha service.
    *
-   * @returns {Promise<number>} - The balance of the captcha solver account.
+   * @returns {Promise<number>} - The balance of the captcha service.
    */
-  public getBalance(): Promise<number> {
-    return this.captchaSolver.getBalance();
+  public async getBalance(): Promise<number> {
+    return await this.captchaSolver.getBalance();
   }
 
   /**
@@ -41,7 +42,7 @@ export class MultiCaptchaSolver {
    * @param {string} base64string - A base64 encoded string of the captcha image.
    * @returns {Promise<string>} - The captcha solution.
    */
-  public solveImageCaptcha(base64string: string): Promise<string> {
+  public async solveImageCaptcha(base64string: string): Promise<string> {
     return this.captchaSolver.solveImageCaptcha(base64string);
   }
 }

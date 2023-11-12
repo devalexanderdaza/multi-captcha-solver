@@ -7,15 +7,14 @@ const base64string: string = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQ
 
 // MultiCaptchaSolver options
 const options: IMultiCaptchaSolverOptions = {
-  apiKey: '1234567890',
-  captchaService: ECaptchaSolverService.AntiCaptcha
+  apiKey: 'YOUR_API_KEY', // Replace with your API key from the captcha service provider (e.g. 2Captcha, AntiCaptcha, etc.)
+  captchaService: ECaptchaSolverService.AntiCaptcha // Replace with the captcha service provider you want to use (e.g. 2Captcha, AntiCaptcha, etc.)
 }
 
 /**
  * Test the MultiCaptchaSolver class.
  */
-export const solveCaptchaExample = async (): Promise<void> => {
-
+export const solveCaptchaExample = async (options: IMultiCaptchaSolverOptions): Promise<void> => {
   // Create a new instance of MultiCaptchaSolver
   const solver: MultiCaptchaSolver = new MultiCaptchaSolver(options);
 
@@ -24,11 +23,11 @@ export const solveCaptchaExample = async (): Promise<void> => {
   console.info(`Balance on ${options.captchaService}: ${balance}`);
 
   // Solve the captcha
-  const solution: string = await solver.solveImageCaptcha(base64string);
+  const solution: string = await solver.solveImageCaptcha(base64string); // This expected result is '52848783'
   console.info(`Solution of captcha on ${
     options.captchaService
   }: ${solution}`);
 };
 
 // Run the example
-solveCaptchaExample();
+solveCaptchaExample(options);
