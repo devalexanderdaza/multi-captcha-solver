@@ -1,34 +1,47 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+import { ECaptchaSolverService } from "./mcs.enum.js";
+import { IMultiCaptchaSolver, IMultiCaptchaSolverOptions } from "./mcs.interface.js";
+import { AntiCaptchaService } from "./services/anticaptcha.service.js";
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
+export class MultiCaptchaSolver {
+  // Captcha solver definition
+  private captchaSolver: IMultiCaptchaSolver;
 
-// Please see the comment in the .eslintrc.json file about the suppressed rule!
-// Below is an example of how to use ESLint errors suppression. You can read more
-// at https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules
+  /**
+   * Creates an instance of MultiCaptchaSolver.
+   * @param {IMultiCaptchaSolverOptions} options - The options for the captcha solver.
+   * @memberof MultiCaptchaSolver
+   */
+  constructor(options: IMultiCaptchaSolverOptions) {
+    if (!options || !options.apiKey || !options.captchaService) {
+      throw new Error("No valid options provided.");
+    }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function greeter(name: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  // The name parameter should be of type string. Any is used only to trigger the rule.
-  return await delayedHello(name, Delays.Long);
+    // Initialize the captcha solver based on the captcha service provided
+    if (options.captchaService === ECaptchaSolverService.AntiCaptcha) {
+      this.captchaSolver = new AntiCaptchaService(options.apiKey);
+    } else if (options.captchaService === ECaptchaSolverService.TwoCaptcha) {
+      // TODO - Implement the TwoCaptchaService
+    } else {
+      throw new Error("Invalid captcha service.");
+    }
+  }
+
+  /**
+   * Get the balance of the captcha solver account.
+   *
+   * @returns {Promise<number>} - The balance of the captcha solver account.
+   */
+  public getBalance(): Promise<number> {
+    return this.captchaSolver.getBalance();
+  }
+
+  /**
+   * Solve a captcha.
+   *
+   * @param {string} base64string - A base64 encoded string of the captcha image.
+   * @returns {Promise<string>} - The captcha solution.
+   */
+  public solveImageCaptcha(base64string: string): Promise<string> {
+    return this.captchaSolver.solveImageCaptcha(base64string);
+  }
 }
