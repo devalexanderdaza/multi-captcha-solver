@@ -15,9 +15,15 @@ const options: IMultiCaptchaSolverOptions = {
  * Test the MultiCaptchaSolver class.
  */
 export const solveCaptchaExample = async (): Promise<void> => {
+
+  // Create a new instance of MultiCaptchaSolver
   const solver: MultiCaptchaSolver = new MultiCaptchaSolver(options);
+
+  // Get the balance of the captcha service
   const balance: number = await solver.getBalance();
   console.info(`Balance on ${options.captchaService}: ${balance}`);
+
+  // Solve the captcha
   const solution: string = await solver.solveImageCaptcha(base64string);
   console.info(`Solution of captcha on ${
     options.captchaService
