@@ -60,6 +60,9 @@
     "ts-jest": "~29.1",
     "typescript": "~5.1"
   },
+  "release": {
+    "branches": ["main"]
+  },
   "engines": {
     "node": ">= 18.12 <19"
   },
