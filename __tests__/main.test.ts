@@ -26,7 +26,7 @@ describe('MultiCaptchaSolver', () => {
 
   // Prueba constructor sin opciones
   it('should throw an error if no options provided', () => {
-    expect(() => new MultiCaptchaSolver(null)).toThrowError('No valid options provided.');
+    expect(() => new MultiCaptchaSolver(null)).toThrow('No valid options provided.');
   });
 
   // Prueba getBalance
@@ -49,6 +49,6 @@ describe('MultiCaptchaSolver', () => {
       apiKey: 'your-api-key',
       captchaService: 'InvalidService' as ECaptchaSolverService,
     };
-    expect(() => new MultiCaptchaSolver(invalidOptions)).toThrowError('Invalid captcha service.');
+    expect(() => new MultiCaptchaSolver(invalidOptions)).toThrow('Invalid captcha service.');
   });
 });
