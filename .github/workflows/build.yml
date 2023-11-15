@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: yarn build:release
 
+      - name: Copy package.json
+        run: cp package.json build/package.json
+
       - name: Run Semantic Release
         run: npx semantic-release
         env:
