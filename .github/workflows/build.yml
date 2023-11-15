@@ -1,39 +1,36 @@
-# Workflow to build the module
-name: Build module
+name: Build, Release and Publish on NPM
 
-# Trigger the workflow manually from the GitHub UI
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build:
-    # Set up the job to run on the latest version of Ubuntu
+  build-and-release:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-    # Define the steps to execute
     steps:
-      # Check out the source code
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Set up Node.js environment using Volta
-      - name: Set up Node.js Environment
-        uses: volta-cli/action@v1
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
 
-      # Install project dependencies without running audit
-      - name: Install Dependencies
-        run: npm ci --no-audit
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      # Run ESLint for code linting (if ESLint is configured)
-      - name: Run ESLint
-        run: npm run lint --if-present
+      - name: Prebuild
+        run: yarn prebuild
 
-      # Run tests
-      - name: Run Tests
-        run: npm test
+      - name: Build
+        run: yarn build:release
 
-      # Build the project (if build script is present)
-      - name: Build Project
-        run: npm run build --if-present
-        env:
-          CI: true
+      - name: Run Semantic Release
+        run: npx semantic-release
