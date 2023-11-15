@@ -92,8 +92,7 @@
     "publish": {
       "npmToken": "${process.env.NPM_TOKEN}"
     },
-    "files": [
-      "build"
-    ]
+    "files": ["build"],
+    "main": "build/main.js"
   }
 }
