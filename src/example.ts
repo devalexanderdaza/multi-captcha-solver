@@ -1,3 +1,9 @@
+/**
+ * Author: Neyib Alexander Daza Guerrero
+ * Email: dev.alexander.daza@gmail.com
+ * Github: https://github.com/devalexanderdaza
+ */
+
 import { MultiCaptchaSolver } from "./main.js";
 import { ECaptchaSolverService } from "./mcs.enum.js";
 import { IMultiCaptchaSolverOptions } from "./mcs.interface.js";

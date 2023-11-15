@@ -1,3 +1,9 @@
+/**
+ * Author: Neyib Alexander Daza Guerrero
+ * Email: dev.alexander.daza@gmail.com
+ * Github: https://github.com/devalexanderdaza
+ */
+
 import {
   AntiCaptcha,
   AntiCaptchaError,

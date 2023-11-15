@@ -1,4 +1,10 @@
 /**
+ * Author: Neyib Alexander Daza Guerrero
+ * Email: dev.alexander.daza@gmail.com
+ * Github: https://github.com/devalexanderdaza
+ */
+
+/**
  * Enum for the different captcha solver services
  * @enum ECaptchaSolverService
  * @export ECaptchaSolverService
