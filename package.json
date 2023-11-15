@@ -1,5 +1,5 @@
 {
-  "name": "multi-captcha-solver",
+  "name": "multi-captcha-solver-adapter",
   "version": "1.0.0",
   "description": "Node.js module that enables solving numeric, alphanumeric, Google reCAPTCHA, and more using multiple services, including Anti-Captcha and 2Captcha.",
   "type": "module",
