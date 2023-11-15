@@ -84,9 +84,7 @@
       "@semantic-release/github"
     ],
     "assets": [
-      "dist/**/*.{js,ts}",
-      "package.json",
-      "yarn.lock"
+      "build/**/*.{js,ts}"
     ],
     "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
     "publish": {
