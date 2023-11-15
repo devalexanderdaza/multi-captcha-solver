@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NPM_TOKEN: ${{ secrets.TOKEN_NPM_PUBLICAR }}
+      NPM_TOKEN: ${{ secrets.NPM }}
 
     steps:
       - name: Checkout code
