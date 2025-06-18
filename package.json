@@ -12,6 +12,10 @@
     "type": "git",
     "url": "https://github.com/devalexanderdaza/multi-captcha-solver.git"
   },
+  "homepage": "https://github.com/devalexanderdaza/multi-captcha-solver#readme",
+  "bugs": {
+    "url": "https://github.com/devalexanderdaza/multi-captcha-solver/issues"
+  },
   "license": "Apache-2.0",
   "scripts": {
     "start": "node build/src/example.js",
@@ -36,7 +40,12 @@
     "Google",
     "service",
     "Anti-Captcha",
-    "2Captcha"
+    "2Captcha",
+    "nodejs",
+    "typescript",
+    "automation",
+    "testing",
+    "scraping"
   ],
   "dependencies": {
     "2captcha": "^3.0.7",
@@ -90,7 +99,10 @@
         "@semantic-release/github",
         {
           "assets": [
-            "build/**/*"
+            {
+              "path": "release.tgz",
+              "label": "Latest Release"
+            }
           ]
         }
       ],
@@ -99,13 +111,19 @@
     "assets": [
       "build/**/*.{js,ts}"
     ],
-    "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+    "message": "chore(release):  ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
     "publish": {
       "npmToken": "${process.env.NPM_TOKEN}"
     },
     "files": [
       "build"
     ],
-    "main": "build/main.js"
+    "main": "build/main.js",
+    "exports": {
+      ".": {
+        "import": "./build/main.js",
+        "types": "./build/main.d.ts"
+      }
+    }
   }
 }

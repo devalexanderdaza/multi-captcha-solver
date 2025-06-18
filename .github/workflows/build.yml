@@ -51,6 +51,11 @@ jobs:
       - name: Copy package.json to build directory
         run: cp package.json build/package.json
 
+      # New Step: Package the release assets
+      # This step creates a tarball of the build directory for release
+      - name: Package release assets
+        run: tar -czvf release.tgz -C build .
+
       # Semantic Release will analyze commits, generate a new version, and publish
       - name: Run Semantic Release
         run: npx semantic-release
