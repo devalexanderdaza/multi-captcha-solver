@@ -1,4 +1,10 @@
 import { AntiCaptcha } from 'anticaptcha'; // Removed AntiCaptchaError, ErrorCodes, TaskTypes
+import {
+  CaptchaServiceError,
+  InsufficientBalanceError,
+  InvalidApiKeyError,
+  IpBlockedError,
+} from '../errors/api.error.js';
 import { AntiCaptchaService } from '../services/anticaptcha.service.js';
 
 // Mock implementations for the instance methods that will be used by AntiCaptchaService
@@ -54,7 +60,7 @@ describe('AntiCaptchaService', () => {
       expect(mockGetBalance).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw "IP blocked by AntiCaptcha." when IP is blocked', async () => {
+    it('should throw IpBlockedError when IP is blocked', async () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
@@ -62,18 +68,54 @@ describe('AntiCaptchaService', () => {
       );
       mockGetBalance.mockRejectedValue(error);
 
+      await expect(service.getBalance()).rejects.toThrow(IpBlockedError);
+      expect(mockGetBalance).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw InvalidApiKeyError when API key is invalid', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_KEY_DOES_NOT_EXIST,
+        'Key does not exist',
+      );
+      mockGetBalance.mockRejectedValue(error);
+
+      await expect(service.getBalance()).rejects.toThrow(InvalidApiKeyError);
+      expect(mockGetBalance).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw InsufficientBalanceError when balance is zero', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_ZERO_BALANCE,
+        'Zero balance',
+      );
+      mockGetBalance.mockRejectedValue(error);
+
       await expect(service.getBalance()).rejects.toThrow(
-        'IP blocked by AntiCaptcha.',
+        InsufficientBalanceError,
       );
       expect(mockGetBalance).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw "Error getting balance from AntiCaptcha." for other errors', async () => {
+    it('should throw CaptchaServiceError for other AntiCaptcha API errors', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        'OTHER_ERROR',
+        'Some other API error',
+      );
+      mockGetBalance.mockRejectedValue(error);
+
+      await expect(service.getBalance()).rejects.toThrow(CaptchaServiceError);
+      expect(mockGetBalance).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw generic Error for non-AntiCaptcha errors', async () => {
       const error = new Error('Some other error'); // Generic error
       mockGetBalance.mockRejectedValue(error);
 
       await expect(service.getBalance()).rejects.toThrow(
-        'Error getting balance from AntiCaptcha.',
+        'An unexpected error occurred with AntiCaptcha while fetching balance.',
       );
       expect(mockGetBalance).toHaveBeenCalledTimes(1);
     });
@@ -99,7 +141,7 @@ describe('AntiCaptchaService', () => {
       expect(mockGetTaskResult).toHaveBeenCalledWith(mockTaskId);
     });
 
-    it('should throw "IP blocked by AntiCaptcha." when IP is blocked during createTask', async () => {
+    it('should throw IpBlockedError when IP is blocked during createTask', async () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
@@ -108,13 +150,13 @@ describe('AntiCaptchaService', () => {
       mockCreateTask.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        'IP blocked by AntiCaptcha.',
+        IpBlockedError,
       );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).not.toHaveBeenCalled();
     });
 
-    it('should throw "IP blocked by AntiCaptcha." when IP is blocked during getTaskResult', async () => {
+    it('should throw IpBlockedError when IP is blocked during getTaskResult', async () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
@@ -124,30 +166,75 @@ describe('AntiCaptchaService', () => {
       mockGetTaskResult.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        'IP blocked by AntiCaptcha.',
+        IpBlockedError,
       );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw "Error solving captcha by AntiCaptcha." for other errors during createTask', async () => {
-      const error = new Error('Some other error');
+    it('should throw InvalidApiKeyError when API key is invalid during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_KEY_DOES_NOT_EXIST,
+        'Key does not exist',
+      );
       mockCreateTask.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        'Error solving captcha by AntiCaptcha.',
+        InvalidApiKeyError,
       );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).not.toHaveBeenCalled();
     });
 
-    it('should throw "Error solving captcha by AntiCaptcha." for other errors during getTaskResult', async () => {
+    it('should throw InsufficientBalanceError when balance is zero during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_ZERO_BALANCE,
+        'Zero balance',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        InsufficientBalanceError,
+      );
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw CaptchaServiceError for other AntiCaptcha API errors during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        'OTHER_ERROR',
+        'Some other API error',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        CaptchaServiceError,
+      );
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw generic Error for non-AntiCaptcha errors during createTask', async () => {
+      const error = new Error('Some other error');
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'An unexpected error occurred with AntiCaptcha while solving image captcha.',
+      );
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw generic Error for non-AntiCaptcha errors during getTaskResult', async () => {
       const error = new Error('Some other error');
       mockCreateTask.mockResolvedValue(mockTaskId);
       mockGetTaskResult.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        'Error solving captcha by AntiCaptcha.',
+        'An unexpected error occurred with AntiCaptcha while solving image captcha.',
       );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).toHaveBeenCalledTimes(1);

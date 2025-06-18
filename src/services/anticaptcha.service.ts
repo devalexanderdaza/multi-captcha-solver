@@ -13,6 +13,12 @@ import {
   TaskTypes,
 } from 'anticaptcha';
 
+import {
+  CaptchaServiceError,
+  InsufficientBalanceError,
+  InvalidApiKeyError,
+  IpBlockedError,
+} from '../errors/api.error.js';
 import { IMultiCaptchaSolver } from '../mcs.interface.js';
 
 /**
@@ -45,15 +51,33 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
       const balance = await this.client.getBalance();
       return balance;
     } catch (error) {
-      if (
-        error instanceof AntiCaptchaError &&
-        error.code === ErrorCodes.ERROR_IP_BLOCKED
-      ) {
-        // Handle IP block
-        throw new Error('IP blocked by AntiCaptcha.');
+      if (error instanceof AntiCaptchaError) {
+        switch (error.code) {
+          case ErrorCodes.ERROR_IP_BLOCKED:
+            throw new IpBlockedError(
+              'AntiCaptcha',
+              'Your IP address is blocked.',
+            );
+          case ErrorCodes.ERROR_KEY_DOES_NOT_EXIST:
+            throw new InvalidApiKeyError(
+              'AntiCaptcha',
+              'The API key provided is invalid.',
+            );
+          case ErrorCodes.ERROR_ZERO_BALANCE:
+            throw new InsufficientBalanceError(
+              'AntiCaptcha',
+              'Insufficient balance in your account.',
+            );
+          default:
+            throw new CaptchaServiceError(
+              'AntiCaptcha',
+              `API Error: ${error.message}`,
+            );
+        }
       } else {
-        // Handle other errors
-        throw new Error('Error getting balance from AntiCaptcha.');
+        throw new Error(
+          'An unexpected error occurred with AntiCaptcha while fetching balance.',
+        );
       }
     }
   }
@@ -79,15 +103,33 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
 
       return response.solution.text;
     } catch (error) {
-      if (
-        error instanceof AntiCaptchaError &&
-        error.code === ErrorCodes.ERROR_IP_BLOCKED
-      ) {
-        // Handle IP block
-        throw new Error('IP blocked by AntiCaptcha.');
+      if (error instanceof AntiCaptchaError) {
+        switch (error.code) {
+          case ErrorCodes.ERROR_IP_BLOCKED:
+            throw new IpBlockedError(
+              'AntiCaptcha',
+              'Your IP address is blocked.',
+            );
+          case ErrorCodes.ERROR_KEY_DOES_NOT_EXIST:
+            throw new InvalidApiKeyError(
+              'AntiCaptcha',
+              'The API key provided is invalid.',
+            );
+          case ErrorCodes.ERROR_ZERO_BALANCE:
+            throw new InsufficientBalanceError(
+              'AntiCaptcha',
+              'Insufficient balance in your account.',
+            );
+          default:
+            throw new CaptchaServiceError(
+              'AntiCaptcha',
+              `Failed to solve captcha: ${error.message}`,
+            );
+        }
       } else {
-        // Handle other errors
-        throw new Error('Error solving captcha by AntiCaptcha.');
+        throw new Error(
+          'An unexpected error occurred with AntiCaptcha while solving image captcha.',
+        );
       }
     }
   }

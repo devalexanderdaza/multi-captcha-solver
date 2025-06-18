@@ -120,6 +120,10 @@
       ".": {
         "import": "./build/main.js",
         "types": "./build/main.d.ts"
+      },
+      "./errors": {
+        "import": "./build/errors/index.js",
+        "types": "./build/errors/index.d.ts"
       }
     }
   }
