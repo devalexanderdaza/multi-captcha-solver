@@ -8,13 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/en/1.0
 ## [Unreleased]
 
 ## [1.0.0] - YYYY-MM-DD
+
 ### Added
+
 - New feature or significant improvement.
-  
+
 ### Changed
+
 - Notable change in existing functionality.
-  
+
 ### Removed
+
 - Removed functionality or deprecated features.
 
 [Unreleased]: https://github.com/devalexanderdaza/multi-captcha-solver/compare/HEAD...main

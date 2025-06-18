@@ -6,11 +6,6 @@
     "declaration": true,
     "outDir": "./build"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts",
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts", "src/example.ts"]
 }

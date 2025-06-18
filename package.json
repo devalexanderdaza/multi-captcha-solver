@@ -12,14 +12,18 @@
     "type": "git",
     "url": "https://github.com/devalexanderdaza/multi-captcha-solver.git"
   },
+  "homepage": "https://github.com/devalexanderdaza/multi-captcha-solver#readme",
+  "bugs": {
+    "url": "https://github.com/devalexanderdaza/multi-captcha-solver/issues"
+  },
   "license": "Apache-2.0",
   "scripts": {
-    "start": "node build/example.js",
+    "start": "node build/src/example.js",
     "clean": "rimraf coverage build tmp",
-    "prebuild": "pnpm run lint",
+    "prebuild": "yarn run lint",
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -w -p tsconfig.json",
-    "build:release": "pnpm run clean && tsc -p tsconfig.release.json",
+    "build:release": "yarn run clean && tsc -p tsconfig.release.json",
     "lint": "eslint . --ext .ts --ext .mts",
     "test": "jest --coverage",
     "prettier": "prettier --config .prettierrc --write .",
@@ -36,7 +40,12 @@
     "Google",
     "service",
     "Anti-Captcha",
-    "2Captcha"
+    "2Captcha",
+    "nodejs",
+    "typescript",
+    "automation",
+    "testing",
+    "scraping"
   ],
   "dependencies": {
     "2captcha": "^3.0.7",
@@ -66,7 +75,7 @@
     "typescript": "~5.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=14.0.0"
   },
   "release": {
     "branches": [
@@ -90,7 +99,10 @@
         "@semantic-release/github",
         {
           "assets": [
-            "build/**/*"
+            {
+              "path": "release.tgz",
+              "label": "Latest Release"
+            }
           ]
         }
       ],
@@ -99,13 +111,19 @@
     "assets": [
       "build/**/*.{js,ts}"
     ],
-    "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+    "message": "chore(release):  ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
     "publish": {
       "npmToken": "${process.env.NPM_TOKEN}"
     },
     "files": [
       "build"
     ],
-    "main": "build/main.js"
+    "main": "build/main.js",
+    "exports": {
+      ".": {
+        "import": "./build/main.js",
+        "types": "./build/main.d.ts"
+      }
+    }
   }
 }
