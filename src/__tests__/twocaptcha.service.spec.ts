@@ -18,7 +18,7 @@ jest.mock('2captcha', () => {
 });
 
 // Keep a reference to the mocked constructor for asserting constructor calls
-const MockSolver = Solver as jest.Mock; // Changed from jest.MockedFunction
+const MockSolver = Solver as jest.Mock; // MockSolver is used to mock the Solver constructor for testing purposes.
 
 // Helper to create an APIError instance for testing
 // We need to use the actual APIError for instanceof checks to work correctly.
