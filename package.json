@@ -108,9 +108,6 @@
       ],
       "@semantic-release/git"
     ],
-    "assets": [
-      "build/**/*.{js,ts}"
-    ],
     "message": "chore(release):  ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
     "publish": {
       "npmToken": "${process.env.NPM_TOKEN}"
