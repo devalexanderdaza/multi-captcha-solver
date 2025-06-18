@@ -4,13 +4,18 @@
  * Github: https://github.com/devalexanderdaza
  */
 
-import { ECaptchaSolverService } from "./mcs.enum.js";
-import { IMultiCaptchaSolver, IMultiCaptchaSolverOptions } from "./mcs.interface.js";
+import { ECaptchaSolverService } from './mcs.enum.js';
+import {
+  IMultiCaptchaSolver,
+  IMultiCaptchaSolverOptions,
+} from './mcs.interface.js';
 
-import { AntiCaptchaService } from "./services/anticaptcha.service.js";
-import { TwoCaptchaService } from "./services/twocaptcha.service.js";
+import { AntiCaptchaService } from './services/anticaptcha.service.js';
+import { TwoCaptchaService } from './services/twocaptcha.service.js';
 
-const solverServiceMap: { [key in ECaptchaSolverService]?: new (apiKey: string) => IMultiCaptchaSolver } = {
+const solverServiceMap: {
+  [key in ECaptchaSolverService]?: new (apiKey: string) => IMultiCaptchaSolver;
+} = {
   [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
   [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
 };
@@ -31,7 +36,7 @@ export class MultiCaptchaSolver {
    */
   constructor(options: IMultiCaptchaSolverOptions) {
     if (!options || !options.apiKey || !options.captchaService) {
-      throw new Error("No valid options provided.");
+      throw new Error('No valid options provided.');
     }
 
     const SolverService = solverServiceMap[options.captchaService];
@@ -39,7 +44,7 @@ export class MultiCaptchaSolver {
     if (SolverService) {
       this.captchaSolver = new SolverService(options.apiKey);
     } else {
-      throw new Error("Invalid or unsupported captcha service.");
+      throw new Error('Invalid or unsupported captcha service.');
     }
   }
 

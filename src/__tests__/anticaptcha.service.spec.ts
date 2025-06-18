@@ -11,7 +11,8 @@ jest.mock('anticaptcha', () => {
   const originalModule = jest.requireActual('anticaptcha'); // This will have AntiCaptchaError, ErrorCodes, TaskTypes
   return {
     ...originalModule,
-    AntiCaptcha: jest.fn().mockImplementation(() => ({ // Mock constructor for AntiCaptcha
+    AntiCaptcha: jest.fn().mockImplementation(() => ({
+      // Mock constructor for AntiCaptcha
       getBalance: mockGetBalance,
       createTask: mockCreateTask,
       getTaskResult: mockGetTaskResult,
@@ -57,11 +58,13 @@ describe('AntiCaptchaService', () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
-        'IP blocked'
+        'IP blocked',
       );
       mockGetBalance.mockRejectedValue(error);
 
-      await expect(service.getBalance()).rejects.toThrow('IP blocked by AntiCaptcha.');
+      await expect(service.getBalance()).rejects.toThrow(
+        'IP blocked by AntiCaptcha.',
+      );
       expect(mockGetBalance).toHaveBeenCalledTimes(1);
     });
 
@@ -69,7 +72,9 @@ describe('AntiCaptchaService', () => {
       const error = new Error('Some other error'); // Generic error
       mockGetBalance.mockRejectedValue(error);
 
-      await expect(service.getBalance()).rejects.toThrow('Error getting balance from AntiCaptcha.');
+      await expect(service.getBalance()).rejects.toThrow(
+        'Error getting balance from AntiCaptcha.',
+      );
       expect(mockGetBalance).toHaveBeenCalledTimes(1);
     });
   });
@@ -98,11 +103,13 @@ describe('AntiCaptchaService', () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
-        'IP blocked'
+        'IP blocked',
       );
       mockCreateTask.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow('IP blocked by AntiCaptcha.');
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'IP blocked by AntiCaptcha.',
+      );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).not.toHaveBeenCalled();
     });
@@ -111,12 +118,14 @@ describe('AntiCaptchaService', () => {
       const actualAnticaptcha = jest.requireActual('anticaptcha');
       const error = new actualAnticaptcha.AntiCaptchaError(
         actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
-        'IP blocked'
+        'IP blocked',
       );
       mockCreateTask.mockResolvedValue(mockTaskId);
       mockGetTaskResult.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow('IP blocked by AntiCaptcha.');
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'IP blocked by AntiCaptcha.',
+      );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).toHaveBeenCalledTimes(1);
     });
@@ -125,7 +134,9 @@ describe('AntiCaptchaService', () => {
       const error = new Error('Some other error');
       mockCreateTask.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow('Error solving captcha by AntiCaptcha.');
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'Error solving captcha by AntiCaptcha.',
+      );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).not.toHaveBeenCalled();
     });
@@ -135,7 +146,9 @@ describe('AntiCaptchaService', () => {
       mockCreateTask.mockResolvedValue(mockTaskId);
       mockGetTaskResult.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow('Error solving captcha by AntiCaptcha.');
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'Error solving captcha by AntiCaptcha.',
+      );
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockGetTaskResult).toHaveBeenCalledTimes(1);
     });

@@ -9,8 +9,8 @@
  * @enum ECaptchaSolverService
  */
 export enum ECaptchaSolverService {
-  TwoCaptcha = "2captcha",
-  AntiCaptcha = "anticaptcha",
+  TwoCaptcha = '2captcha',
+  AntiCaptcha = 'anticaptcha',
   // TODO - Implement the following captcha solver services
   // DeathByCaptcha = "deathbycaptcha",
   // ImageTyperz = "imagetyperz",

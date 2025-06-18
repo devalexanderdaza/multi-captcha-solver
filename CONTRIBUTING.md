@@ -20,7 +20,7 @@ Multi-Captcha Solver Adapter aims to provide a unified, simple, and robust inter
     ```bash
     npm install
     ```
-    *(Note: The project uses `yarn.lock`, so `yarn install` is preferred if you have Yarn installed. However, `npm install` should also work based on `package.json`)*
+    _(Note: The project uses `yarn.lock`, so `yarn install` is preferred if you have Yarn installed. However, `npm install` should also work based on `package.json`)_
 
 ### Running Tests
 
@@ -52,17 +52,18 @@ This will execute all unit tests using Jest and display a coverage report. Pleas
     git push origin feature/your-awesome-feature
     ```
 5.  **Open a Pull Request:** Go to the original repository on GitHub and open a pull request from your forked branch to the `main` branch of the `devalexanderdaza/multi-captcha-solver` repository.
-    *   Fill out the pull request template with details about your changes.
-    *   Ensure all automated checks (like GitHub Actions for build and tests) are passing.
+    - Fill out the pull request template with details about your changes.
+    - Ensure all automated checks (like GitHub Actions for build and tests) are passing.
 
 ## How to Add a New Captcha Provider (The Right Way)
 
 We've designed the system to be easily extensible for new captcha providers. The old `if/else` logic has been replaced with a more scalable factory map pattern. Here’s how to add a new one:
 
 1.  **Create Your Service Class:**
-    *   Navigate to the `src/services/` directory.
-    *   Create a new TypeScript file for your service, e.g., `NewCaptchaService.ts`.
-    *   Your class **must** implement the `IMultiCaptchaSolver` interface, which is defined in `src/mcs.interface.ts`. This typically means implementing `getBalance()` and `solveImageCaptcha(base64string: string)` methods.
+
+    - Navigate to the `src/services/` directory.
+    - Create a new TypeScript file for your service, e.g., `NewCaptchaService.ts`.
+    - Your class **must** implement the `IMultiCaptchaSolver` interface, which is defined in `src/mcs.interface.ts`. This typically means implementing `getBalance()` and `solveImageCaptcha(base64string: string)` methods.
 
     ```typescript
     // src/services/NewCaptchaService.ts
@@ -93,50 +94,59 @@ We've designed the system to be easily extensible for new captcha providers. The
         // const taskId = response.data.taskId;
         // ...polling logic...
         // return solutionText;
-        throw new Error('solveImageCaptcha not implemented for NewCaptchaService'); // Replace with actual implementation
+        throw new Error(
+          'solveImageCaptcha not implemented for NewCaptchaService',
+        ); // Replace with actual implementation
       }
     }
     ```
 
 2.  **Add to Enum:**
-    *   Open `src/mcs.enum.ts`.
-    *   Add your new service to the `ECaptchaSolverService` enum. Choose a simple, descriptive key.
+
+    - Open `src/mcs.enum.ts`.
+    - Add your new service to the `ECaptchaSolverService` enum. Choose a simple, descriptive key.
 
     ```typescript
     // src/mcs.enum.ts
     export enum ECaptchaSolverService {
-      TwoCaptcha = "2captcha",
-      AntiCaptcha = "anticaptcha",
-      NewCaptchaService = "newcaptchaservice", // Add your service here
+      TwoCaptcha = '2captcha',
+      AntiCaptcha = 'anticaptcha',
+      NewCaptchaService = 'newcaptchaservice', // Add your service here
       // ... other services
     }
     ```
 
 3.  **Register in Factory Map:**
-    *   Open `src/main.ts`.
-    *   Import your new service class at the top of the file:
-        ```typescript
-        // src/main.ts
-        import { NewCaptchaService } from "./services/NewCaptchaService.js"; // Ensure .js extension for ES Modules
-        ```
-    *   Add your service to the `solverServiceMap` object, mapping the enum value to your service class:
-        ```typescript
-        // src/main.ts
-        const solverServiceMap: { [key in ECaptchaSolverService]?: new (apiKey: string) => IMultiCaptchaSolver } = {
-          [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
-          [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
-          [ECaptchaSolverService.NewCaptchaService]: NewCaptchaService, // Register your service here
-        };
-        ```
-        *(Note: The `.js` extension in imports is important if your `tsconfig.json` `module` resolution strategy requires it for ES Modules output, which is common.)*
+
+    - Open `src/main.ts`.
+    - Import your new service class at the top of the file:
+      ```typescript
+      // src/main.ts
+      import { NewCaptchaService } from './services/NewCaptchaService.js'; // Ensure .js extension for ES Modules
+      ```
+    - Add your service to the `solverServiceMap` object, mapping the enum value to your service class:
+      ```typescript
+      // src/main.ts
+      const solverServiceMap: {
+        [key in ECaptchaSolverService]?: new (
+          apiKey: string,
+        ) => IMultiCaptchaSolver;
+      } = {
+        [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
+        [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
+        [ECaptchaSolverService.NewCaptchaService]: NewCaptchaService, // Register your service here
+      };
+      ```
+      _(Note: The `.js` extension in imports is important if your `tsconfig.json` `module` resolution strategy requires it for ES Modules output, which is common.)_
 
 4.  **Add Unit Tests:**
-    *   Create a new test file for your service in the `src/__tests__/` directory (e.g., `NewCaptchaService.spec.ts`).
-    *   Write comprehensive unit tests for your service, mocking API calls and testing both successful responses and error conditions. Refer to existing tests like `anticaptcha.service.spec.ts` or `twocaptcha.service.spec.ts` for examples.
+
+    - Create a new test file for your service in the `src/__tests__/` directory (e.g., `NewCaptchaService.spec.ts`).
+    - Write comprehensive unit tests for your service, mocking API calls and testing both successful responses and error conditions. Refer to existing tests like `anticaptcha.service.spec.ts` or `twocaptcha.service.spec.ts` for examples.
 
 5.  **Update Documentation:**
-    *   Open `README.md`.
-    *   Add your new service to the "🛠️ Supported Services" section.
-    *   If your service has unique setup steps or considerations, briefly mention them or link to more detailed documentation.
+    - Open `README.md`.
+    - Add your new service to the "🛠️ Supported Services" section.
+    - If your service has unique setup steps or considerations, briefly mention them or link to more detailed documentation.
 
 Thank you for contributing!

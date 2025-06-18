@@ -4,7 +4,7 @@
  * Github: https://github.com/devalexanderdaza
  */
 
-import { ECaptchaSolverService } from "./mcs.enum.js";
+import { ECaptchaSolverService } from './mcs.enum.js';
 
 /**
  * Defines the contract for a captcha solving service.

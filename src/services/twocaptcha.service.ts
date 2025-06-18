@@ -6,7 +6,7 @@
 
 import { Solver, APIError } from '2captcha';
 
-import { IMultiCaptchaSolver } from "../mcs.interface.js";
+import { IMultiCaptchaSolver } from '../mcs.interface.js';
 
 /**
  * @class TwoCaptchaService
@@ -15,7 +15,6 @@ import { IMultiCaptchaSolver } from "../mcs.interface.js";
  * @memberof TwoCaptchaService
  */
 export class TwoCaptchaService implements IMultiCaptchaSolver {
-
   // Captcha solver definition
   private client: Solver;
 

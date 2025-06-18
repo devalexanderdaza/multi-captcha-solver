@@ -10,10 +10,10 @@ import {
   ErrorCodes,
   IImageToTextTask,
   IImageToTextTaskResult,
-  TaskTypes
-} from "anticaptcha";
+  TaskTypes,
+} from 'anticaptcha';
 
-import { IMultiCaptchaSolver } from "../mcs.interface.js";
+import { IMultiCaptchaSolver } from '../mcs.interface.js';
 
 /**
  * @class AntiCaptchaService
@@ -22,7 +22,6 @@ import { IMultiCaptchaSolver } from "../mcs.interface.js";
  * @memberof AntiCaptchaService
  */
 export class AntiCaptchaService implements IMultiCaptchaSolver {
-
   // Captcha solver definition
   private client: AntiCaptcha;
 
@@ -51,11 +50,10 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         error.code === ErrorCodes.ERROR_IP_BLOCKED
       ) {
         // Handle IP block
-        throw new Error("IP blocked by AntiCaptcha.");
-      }
-      else {
+        throw new Error('IP blocked by AntiCaptcha.');
+      } else {
         // Handle other errors
-        throw new Error("Error getting balance from AntiCaptcha.");
+        throw new Error('Error getting balance from AntiCaptcha.');
       }
     }
   }
@@ -86,11 +84,10 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         error.code === ErrorCodes.ERROR_IP_BLOCKED
       ) {
         // Handle IP block
-        throw new Error("IP blocked by AntiCaptcha.");
-      }
-      else {
+        throw new Error('IP blocked by AntiCaptcha.');
+      } else {
         // Handle other errors
-        throw new Error("Error solving captcha by AntiCaptcha.");
+        throw new Error('Error solving captcha by AntiCaptcha.');
       }
     }
   }

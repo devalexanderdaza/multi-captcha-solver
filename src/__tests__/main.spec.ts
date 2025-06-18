@@ -8,8 +8,12 @@ import { TwoCaptchaService } from '../services/twocaptcha.service';
 jest.mock('../services/anticaptcha.service');
 jest.mock('../services/twocaptcha.service');
 
-const MockAntiCaptchaService = AntiCaptchaService as jest.MockedClass<typeof AntiCaptchaService>;
-const MockTwoCaptchaService = TwoCaptchaService as jest.MockedClass<typeof TwoCaptchaService>;
+const MockAntiCaptchaService = AntiCaptchaService as jest.MockedClass<
+  typeof AntiCaptchaService
+>;
+const MockTwoCaptchaService = TwoCaptchaService as jest.MockedClass<
+  typeof TwoCaptchaService
+>;
 
 describe('MultiCaptchaSolver', () => {
   const apiKey = 'test-api-key';
@@ -22,18 +26,28 @@ describe('MultiCaptchaSolver', () => {
 
   describe('constructor', () => {
     it('should throw an error if no options are provided', () => {
-      expect(() => new MultiCaptchaSolver(null as any)).toThrow('No valid options provided.');
-      expect(() => new MultiCaptchaSolver(undefined as any)).toThrow('No valid options provided.');
+      expect(() => new MultiCaptchaSolver(null as any)).toThrow(
+        'No valid options provided.',
+      );
+      expect(() => new MultiCaptchaSolver(undefined as any)).toThrow(
+        'No valid options provided.',
+      );
     });
 
     it('should throw an error if apiKey is missing', () => {
-      const options: Partial<IMultiCaptchaSolverOptions> = { captchaService: ECaptchaSolverService.AntiCaptcha };
-      expect(() => new MultiCaptchaSolver(options as IMultiCaptchaSolverOptions)).toThrow('No valid options provided.');
+      const options: Partial<IMultiCaptchaSolverOptions> = {
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+      };
+      expect(
+        () => new MultiCaptchaSolver(options as IMultiCaptchaSolverOptions),
+      ).toThrow('No valid options provided.');
     });
 
     it('should throw an error if captchaService is missing', () => {
       const options: Partial<IMultiCaptchaSolverOptions> = { apiKey };
-      expect(() => new MultiCaptchaSolver(options as IMultiCaptchaSolverOptions)).toThrow('No valid options provided.');
+      expect(
+        () => new MultiCaptchaSolver(options as IMultiCaptchaSolverOptions),
+      ).toThrow('No valid options provided.');
     });
 
     it('should throw an error for an invalid or unsupported captchaService', () => {
@@ -41,7 +55,9 @@ describe('MultiCaptchaSolver', () => {
         apiKey,
         captchaService: 'unsupportedService' as ECaptchaSolverService,
       };
-      expect(() => new MultiCaptchaSolver(options)).toThrow('Invalid or unsupported captcha service.');
+      expect(() => new MultiCaptchaSolver(options)).toThrow(
+        'Invalid or unsupported captcha service.',
+      );
     });
 
     it('should correctly instantiate AntiCaptchaService', () => {
@@ -106,7 +122,8 @@ describe('MultiCaptchaSolver', () => {
         captchaService: ECaptchaSolverService.AntiCaptcha,
       };
       const mockSolveImageCaptcha = jest.fn().mockResolvedValue('solved-anti');
-      MockAntiCaptchaService.prototype.solveImageCaptcha = mockSolveImageCaptcha;
+      MockAntiCaptchaService.prototype.solveImageCaptcha =
+        mockSolveImageCaptcha;
 
       const solver = new MultiCaptchaSolver(options);
       await solver.solveImageCaptcha(base64string);

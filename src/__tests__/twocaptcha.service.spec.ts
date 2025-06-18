@@ -10,7 +10,8 @@ jest.mock('2captcha', () => {
   const originalModule = jest.requireActual('2captcha');
   return {
     ...originalModule, // Preserve other exports like APIError
-    Solver: jest.fn().mockImplementation(() => ({ // Mock constructor
+    Solver: jest.fn().mockImplementation(() => ({
+      // Mock constructor
       balance: mockTwoCaptchaBalance,
       imageCaptcha: mockImageCaptcha,
     })),
@@ -22,7 +23,10 @@ const MockSolver = Solver as jest.Mock; // MockSolver is used to mock the Solver
 
 // Helper to create an APIError instance for testing
 // We need to use the actual APIError for instanceof checks to work correctly.
-const createActualApiError = (causeMessage: string): import('2captcha').APIError => { // Used import('2captcha').APIError
+const createActualApiError = (
+  causeMessage: string,
+): import('2captcha').APIError => {
+  // Used import('2captcha').APIError
   const actualTwoCaptcha = jest.requireActual('2captcha');
   // The actual APIError constructor might take specific arguments.
   // We assume it takes a message. The service relies on `error.cause`.
@@ -75,7 +79,9 @@ describe('TwoCaptchaService', () => {
       mockTwoCaptchaBalance.mockRejectedValue(error);
 
       // The service formats the error message, so we match that format
-      await expect(service.getBalance()).rejects.toThrow(`Error getting balance from 2Captcha. ${errorMessage}`);
+      await expect(service.getBalance()).rejects.toThrow(
+        `Error getting balance from 2Captcha. ${errorMessage}`,
+      );
       expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
     });
 
@@ -83,7 +89,9 @@ describe('TwoCaptchaService', () => {
       const error = new Error('Some other error');
       mockTwoCaptchaBalance.mockRejectedValue(error);
 
-      await expect(service.getBalance()).rejects.toThrow('Error getting balance from 2Captcha.');
+      await expect(service.getBalance()).rejects.toThrow(
+        'Error getting balance from 2Captcha.',
+      );
       expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
     });
   });
@@ -107,7 +115,9 @@ describe('TwoCaptchaService', () => {
 
       mockImageCaptcha.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(`Error solving captcha with 2Captcha. ${errorMessage}`);
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        `Error solving captcha with 2Captcha. ${errorMessage}`,
+      );
       expect(mockImageCaptcha).toHaveBeenCalledWith(base64string);
     });
 
@@ -115,7 +125,9 @@ describe('TwoCaptchaService', () => {
       const error = new Error('Some other error');
       mockImageCaptcha.mockRejectedValue(error);
 
-      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow('Error solving captcha with 2Captcha.');
+      await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
+        'Error solving captcha with 2Captcha.',
+      );
       expect(mockImageCaptcha).toHaveBeenCalledWith(base64string);
     });
   });
