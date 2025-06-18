@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    strategy: # <-- AÑADIR ESTO
+    strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
 
