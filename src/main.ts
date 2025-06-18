@@ -10,8 +10,12 @@ import { IMultiCaptchaSolver, IMultiCaptchaSolverOptions } from "./mcs.interface
 import { AntiCaptchaService } from "./services/anticaptcha.service.js";
 import { TwoCaptchaService } from "./services/twocaptcha.service.js";
 
+const solverServiceMap: { [key in ECaptchaSolverService]?: new (apiKey: string) => IMultiCaptchaSolver } = {
+  [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
+  [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
+};
+
 export class MultiCaptchaSolver {
-  // Captcha solver definition
   private captchaSolver: IMultiCaptchaSolver;
 
   /**
@@ -24,13 +28,12 @@ export class MultiCaptchaSolver {
       throw new Error("No valid options provided.");
     }
 
-    // Initialize the captcha solver based on the captcha service provided
-    if (options.captchaService === ECaptchaSolverService.AntiCaptcha) {
-      this.captchaSolver = new AntiCaptchaService(options.apiKey);
-    } else if (options.captchaService === ECaptchaSolverService.TwoCaptcha) {
-      this.captchaSolver = new TwoCaptchaService(options.apiKey);
+    const SolverService = solverServiceMap[options.captchaService];
+
+    if (SolverService) {
+      this.captchaSolver = new SolverService(options.apiKey);
     } else {
-      throw new Error("Invalid captcha service.");
+      throw new Error("Invalid or unsupported captcha service.");
     }
   }
 
@@ -40,7 +43,7 @@ export class MultiCaptchaSolver {
    * @returns {Promise<number>} - The balance of the captcha service.
    */
   public async getBalance(): Promise<number> {
-    return await this.captchaSolver.getBalance();
+    return this.captchaSolver.getBalance();
   }
 
   /**
