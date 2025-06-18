@@ -35,7 +35,7 @@ jobs:
 
       # New Step: Run prettier to ensure code formatting
       - name: Run Prettier
-        run: yarn prettier
+        run: yarn prettier --check
 
       # New Step: Run tests to ensure everything works as expected
       - name: Run Tests
