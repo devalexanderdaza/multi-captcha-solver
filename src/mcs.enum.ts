@@ -5,9 +5,8 @@
  */
 
 /**
- * Enum for the different captcha solver services
+ * Specifies the available captcha solver services that can be used.
  * @enum ECaptchaSolverService
- * @export ECaptchaSolverService
  */
 export enum ECaptchaSolverService {
   TwoCaptcha = "2captcha",
