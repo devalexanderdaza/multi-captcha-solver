@@ -1,147 +1,92 @@
-# Multi Captcha Solver
+# ✨ Multi-Captcha Solver Adapter ✨
 
-## Project Description
+[![NPM Version](https://img.shields.io/npm/v/multi-captcha-solver-adapter?style=for-the-badge)](https://www.npmjs.com/package/multi-captcha-solver-adapter)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/devalexanderdaza/multi-captcha-solver/build.yml?branch=main&style=for-the-badge)](https://github.com/devalexanderdaza/multi-captcha-solver/actions/workflows/build.yml)
+[![NPM Downloads](https://img.shields.io/npm/dt/multi-captcha-solver-adapter?style=for-the-badge)](https://www.npmjs.com/package/multi-captcha-solver-adapter)
+[![License](https://img.shields.io/github/license/devalexanderdaza/multi-captcha-solver?style=for-the-badge)](./LICENSE)
+[![Contributors](https://img.shields.io/github/contributors/devalexanderdaza/multi-captcha-solver?style=for-the-badge)](https://github.com/devalexanderdaza/multi-captcha-solver/graphs/contributors)
 
-`multi-captcha-solver` is a Node.js library designed to simplify the process of integrating various captcha solving services into your projects. It provides a unified interface to interact with different providers like 2Captcha and AntiCaptcha, allowing you to easily switch between services or use them concurrently. The primary goal is to offer a consistent API for common operations such as retrieving account balance and solving image captchas.
+A powerful and easy-to-use NodeJS library that unifies multiple captcha-solving services under a single, elegant interface. Stop implementing a new API for every provider!
 
-## Installation
+---
 
-You can install `multi-captcha-solver` using npm or yarn:
+## 🚀 Key Features
 
-**Using npm:**
+* **🧩 Multi-Provider Support**: Built-in support for the most popular captcha services.
+* **🛡️ Unified Interface**: Use the same code to talk to different services. Switch providers by changing just one line!
+* **💯 Strictly Typed**: Developed 100% in TypeScript for more robust and predictable code.
+* **🌐 Modern Stack**: Built with ES Modules, the latest standard for JavaScript modules.
+* **🤝 Extensible by Design**: Engineered to make adding new providers incredibly simple.
+
+## 🛠️ Supported Services
+
+* [x] 2Captcha
+* [x] Anti-Captcha
+* _... and more coming soon! (Want to add one? See how to contribute!)_
+
+## 📦 Installation
+
 ```bash
-npm install multi-captcha-solver
+npm install multi-captcha-solver-adapter
 ```
 
-**Using yarn:**
-```bash
-yarn add multi-captcha-solver
-```
+## 👨‍💻 Basic Usage
 
-## Usage
-
-### Importing and Initializing `MultiCaptchaSolver`
-
-First, you need to import the `MultiCaptchaSolver` class and the `ECaptchaSolverService` enum. Then, create an instance of `MultiCaptchaSolver` with your API key and the desired service.
+Here's a quick example of how to solve an image captcha, including the new robust error handling:
 
 ```typescript
-import { MultiCaptchaSolver, ECaptchaSolverService } from 'multi-captcha-solver';
+import { MultiCaptchaSolver, ECaptchaSolverService } from 'multi-captcha-solver-adapter';
+// Import custom errors to handle specific cases
+import { CaptchaServiceError, IpBlockedError } from 'multi-captcha-solver-adapter/errors';
 
-// For 2Captcha
-const twoCaptchaSolver = new MultiCaptchaSolver({
-  apiKey: 'YOUR_2CAPTCHA_API_KEY',
-  captchaService: ECaptchaSolverService.TwoCaptcha,
-});
+// Your base64-encoded captcha image
+const imageBase64 = '...';
 
-// For AntiCaptcha
-const antiCaptchaSolver = new MultiCaptchaSolver({
-  apiKey: 'YOUR_ANTICAPTCHA_API_KEY',
-  captchaService: ECaptchaSolverService.AntiCaptcha,
-});
-```
-
-### Getting Account Balance
-
-You can retrieve the current balance of your captcha service account.
-
-```typescript
-async function checkBalance(solver: MultiCaptchaSolver) {
+const solve = async () => {
   try {
+    const solver = new MultiCaptchaSolver({
+      apiKey: 'YOUR_PROVIDER_API_KEY',
+      captchaService: ECaptchaSolverService.AntiCaptcha // Or .TwoCaptcha
+    });
+
+    // 1. (Optional) Check your balance
     const balance = await solver.getBalance();
-    console.log(`Account Balance: $${balance}`);
+    console.log(`Your current balance is: $${balance}`);
+
+    // 2. Solve the captcha
+    const solution = await solver.solveImageCaptcha(imageBase64);
+    console.log(`🎉 The solution is: ${solution}!`);
+
   } catch (error) {
-    console.error('Error fetching balance:', error);
+    // Now you can handle specific errors!
+    if (error instanceof IpBlockedError) {
+      console.error(`IP has been blocked by ${error.service}. Please check your proxy or wait.`);
+    } else if (error instanceof CaptchaServiceError) {
+      console.error(`An API error occurred with ${error.service}:`, error.message);
+    } else {
+      console.error('😱 An unexpected error occurred:', error);
+    }
   }
-}
+};
 
-// Example with 2Captcha
-checkBalance(twoCaptchaSolver);
-
-// Example with AntiCaptcha
-checkBalance(antiCaptchaSolver);
+solve();
 ```
 
-### Solving an Image Captcha
+## 💖 Contributing
 
-To solve an image captcha, provide a base64 encoded string of the image.
+Contributions are the heart of the open-source community\! We are delighted to accept your help. Please check out our **[Contribution Guide](./CONTRIBUTING.md)** to get started.
 
-```typescript
-async function solveCaptcha(solver: MultiCaptchaSolver, base64Image: string) {
-  try {
-    const solution = await solver.solveImageCaptcha(base64Image);
-    console.log(`Captcha Solution: ${solution}`);
-  } catch (error) {
-    console.error('Error solving captcha:', error);
-  }
-}
+## 📄 License
 
-// Example with a placeholder base64 image string
-const sampleBase64Image = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Replace with your actual base64 image
+This project is licensed under the Apache-2.0 License. See the [LICENSE](./LICENSE) file for details.
 
-// Example with 2Captcha
-solveCaptcha(twoCaptchaSolver, sampleBase64Image);
+-----
 
-// Example with AntiCaptcha
-solveCaptcha(antiCaptchaSolver, sampleBase64Image);
-```
+### Author
 
-## Code Examples
+**Neyib Alexander Daza Guerrero**
 
-Below are complete examples demonstrating how to use the library with different services.
+  * **Email**: [dev.alexander.daza@gmail.com](mailto:dev.alexander.daza@gmail.com)
+  * **GitHub**: [@devalexanderdaza](https://github.com/devalexanderdaza)
 
-**Example using 2Captcha:**
-
-```typescript
-import { MultiCaptchaSolver, ECaptchaSolverService } from 'multi-captcha-solver';
-
-async function main() {
-  const solver = new MultiCaptchaSolver({
-    apiKey: 'YOUR_2CAPTCHA_API_KEY', // Replace with your actual API key
-    captchaService: ECaptchaSolverService.TwoCaptcha,
-  });
-
-  try {
-    // Get balance
-    const balance = await solver.getBalance();
-    console.log(`2Captcha Balance: $${balance}`);
-
-    // Solve an image captcha (replace with a real base64 image string)
-    const base64Image = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    const solution = await solver.solveImageCaptcha(base64Image);
-    console.log(`Captcha solved by 2Captcha. Solution: ${solution}`);
-  } catch (error) {
-    console.error('An error occurred with 2Captcha service:', error);
-  }
-}
-
-main();
-```
-
-**Example using AntiCaptcha:**
-
-```typescript
-import { MultiCaptchaSolver, ECaptchaSolverService } from 'multi-captcha-solver';
-
-async function main() {
-  const solver = new MultiCaptchaSolver({
-    apiKey: 'YOUR_ANTICAPTCHA_API_KEY', // Replace with your actual API key
-    captchaService: ECaptchaSolverService.AntiCaptcha,
-  });
-
-  try {
-    // Get balance
-    const balance = await solver.getBalance();
-    console.log(`AntiCaptcha Balance: $${balance}`);
-
-    // Solve an image captcha (replace with a real base64 image string)
-    const base64Image = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    const solution = await solver.solveImageCaptcha(base64Image);
-    console.log(`Captcha solved by AntiCaptcha. Solution: ${solution}`);
-  } catch (error) {
-    console.error('An error occurred with AntiCaptcha service:', error);
-  }
-}
-
-main();
-```
-This `README.md` provides a comprehensive guide for users to get started with the `multi-captcha-solver` library. Remember to replace placeholder API keys and base64 image strings with actual values when using the examples.
+<!-- end list -->
