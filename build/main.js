@@ -1,24 +1,26 @@
-import { ECaptchaSolverService } from "./mcs.enum.js";
-import { AntiCaptchaService } from "./services/anticaptcha.service.js";
-import { TwoCaptchaService } from "./services/twocaptcha.service.js";
+import { ECaptchaSolverService } from './mcs.enum.js';
+import { AntiCaptchaService } from './services/anticaptcha.service.js';
+import { TwoCaptchaService } from './services/twocaptcha.service.js';
+const solverServiceMap = {
+    [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
+    [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
+};
 export class MultiCaptchaSolver {
     captchaSolver;
     constructor(options) {
         if (!options || !options.apiKey || !options.captchaService) {
-            throw new Error("No valid options provided.");
+            throw new Error('No valid options provided.');
         }
-        if (options.captchaService === ECaptchaSolverService.AntiCaptcha) {
-            this.captchaSolver = new AntiCaptchaService(options.apiKey);
-        }
-        else if (options.captchaService === ECaptchaSolverService.TwoCaptcha) {
-            this.captchaSolver = new TwoCaptchaService(options.apiKey);
+        const SolverService = solverServiceMap[options.captchaService];
+        if (SolverService) {
+            this.captchaSolver = new SolverService(options.apiKey);
         }
         else {
-            throw new Error("Invalid captcha service.");
+            throw new Error('Invalid or unsupported captcha service.');
         }
     }
     async getBalance() {
-        return await this.captchaSolver.getBalance();
+        return this.captchaSolver.getBalance();
     }
     async solveImageCaptcha(base64string) {
         return this.captchaSolver.solveImageCaptcha(base64string);

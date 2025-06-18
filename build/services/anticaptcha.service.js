@@ -1,4 +1,4 @@
-import { AntiCaptcha, AntiCaptchaError, ErrorCodes, TaskTypes } from "anticaptcha";
+import { AntiCaptcha, AntiCaptchaError, ErrorCodes, TaskTypes, } from 'anticaptcha';
 export class AntiCaptchaService {
     client;
     constructor(apiKey) {
@@ -12,10 +12,10 @@ export class AntiCaptchaService {
         catch (error) {
             if (error instanceof AntiCaptchaError &&
                 error.code === ErrorCodes.ERROR_IP_BLOCKED) {
-                throw new Error("IP blocked by AntiCaptcha.");
+                throw new Error('IP blocked by AntiCaptcha.');
             }
             else {
-                throw new Error("Error getting balance from AntiCaptcha.");
+                throw new Error('Error getting balance from AntiCaptcha.');
             }
         }
     }
@@ -31,10 +31,10 @@ export class AntiCaptchaService {
         catch (error) {
             if (error instanceof AntiCaptchaError &&
                 error.code === ErrorCodes.ERROR_IP_BLOCKED) {
-                throw new Error("IP blocked by AntiCaptcha.");
+                throw new Error('IP blocked by AntiCaptcha.');
             }
             else {
-                throw new Error("Error solving captcha by AntiCaptcha.");
+                throw new Error('Error solving captcha by AntiCaptcha.');
             }
         }
     }

@@ -1,4 +1,4 @@
-import { IMultiCaptchaSolverOptions } from "./mcs.interface.js";
+import { IMultiCaptchaSolverOptions } from './mcs.interface.js';
 export declare class MultiCaptchaSolver {
     private captchaSolver;
     constructor(options: IMultiCaptchaSolverOptions);

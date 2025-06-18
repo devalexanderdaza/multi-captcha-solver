@@ -1,4 +1,4 @@
-import { ECaptchaSolverService } from "./mcs.enum.js";
+import { ECaptchaSolverService } from './mcs.enum.js';
 export interface IMultiCaptchaSolver {
     getBalance(): Promise<number>;
     solveImageCaptcha(base64string: string): Promise<string>;

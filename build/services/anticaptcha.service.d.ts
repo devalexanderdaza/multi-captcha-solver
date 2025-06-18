@@ -1,4 +1,4 @@
-import { IMultiCaptchaSolver } from "../mcs.interface.js";
+import { IMultiCaptchaSolver } from '../mcs.interface.js';
 export declare class AntiCaptchaService implements IMultiCaptchaSolver {
     private client;
     constructor(apiKey: string);
