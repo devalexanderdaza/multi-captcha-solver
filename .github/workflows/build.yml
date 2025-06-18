@@ -1,4 +1,4 @@
-name: Build, Release and Publish on NPM
+name: Build, Test, Release and Publish on NPM
 
 on:
   push:
@@ -12,23 +12,46 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Use Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
 
+      # Add caching for dependencies to speed up workflow runs
+      - name: Cache Node.js modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+
+      # Install dependencies only if cache was not hit
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Build
+      # New Step: Run prettier to ensure code formatting
+      - name: Run Prettier
+        run: yarn prettier --check
+
+      # New Step: Run tests to ensure everything works as expected
+      - name: Run Tests
+        run: yarn test --ci --coverage
+
+      # The build step remains, but now runs only after tests pass
+      - name: Build for release
         run: yarn build:release
 
-      - name: Copy package.json
+      # This step is no longer necessary if the build process is handled correctly
+      # by semantic-release's npm plugin pointing to the build directory.
+      # However, keeping it provides an explicit guarantee.
+      - name: Copy package.json to build directory
         run: cp package.json build/package.json
 
+      # Semantic Release will analyze commits, generate a new version, and publish
       - name: Run Semantic Release
         run: npx semantic-release
         env:
