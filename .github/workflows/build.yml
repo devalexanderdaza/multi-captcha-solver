@@ -9,18 +9,20 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 18
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org/
 
-      # Add caching for dependencies to speed up workflow runs
       - name: Cache Node.js modules
         id: cache-node-modules
         uses: actions/cache@v4
@@ -28,41 +30,30 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
 
-      # Install dependencies only if cache was not hit
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      # New Step: Run prettier to ensure code formatting
       - name: Run Prettier
         run: yarn prettier --check
 
-      # New Step: Run tests to ensure everything works as expected
-      # - name: Run Tests
-      #   run: yarn test --ci --coverage
-      # The build step remains, but now runs only after tests pass
+      - name: Run Tests
+        run: yarn test --ci --coverage
+
       - name: Build for release
         run: yarn build:release
 
-        # --- NUEVO PASO AÑADIDO ---
-      # Copia archivos esenciales como README y LICENSE al directorio de build para que se incluyan en el paquete de NPM.
       - name: Copy auxiliary files to build directory
         run: |
           cp README.md build/
           cp LICENSE build/
 
-      # This step is no longer necessary if the build process is handled correctly
-      # by semantic-release's npm plugin pointing to the build directory.
-      # However, keeping it provides an explicit guarantee.
       - name: Copy package.json to build directory
         run: cp package.json build/package.json
 
-      # New Step: Package the release assets
-      # This step creates a tarball of the build directory for release
       - name: Package release assets
         run: tar -czvf release.tgz -C build .
 
-      # Semantic Release will analyze commits, generate a new version, and publish
       - name: Run Semantic Release
         run: npx semantic-release
         env:
