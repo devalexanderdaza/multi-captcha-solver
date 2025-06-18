@@ -1,25 +1,9 @@
-/**
- * Author: Neyib Alexander Daza Guerrero
- * Email: dev.alexander.daza@gmail.com
- * Github: https://github.com/devalexanderdaza
- */
 import { Solver, APIError } from '2captcha';
 export class TwoCaptchaService {
-    // Captcha solver definition
     client;
-    /**
-     * Creates an instance of TwoCaptchaService.
-     * @param {string} apiKey - The API key for the 2Captcha service.
-     * @memberof TwoCaptchaService
-     */
     constructor(apiKey) {
         this.client = new Solver(apiKey);
     }
-    /**
-     * Get the balance of the 2Captcha account.
-     *
-     * @returns {Promise<number>} - The balance of the 2Captcha account.
-     */
     async getBalance() {
         try {
             return await this.client.balance();
@@ -33,12 +17,6 @@ export class TwoCaptchaService {
             }
         }
     }
-    /**
-     * Solve a captcha.
-     *
-     * @param {string} base64string - A base64 encoded string of the captcha image.
-     * @returns {Promise<string>} - The captcha solution.
-     */
     async solveImageCaptcha(base64string) {
         try {
             const solvedCaptcha = await this.client.imageCaptcha(base64string);
