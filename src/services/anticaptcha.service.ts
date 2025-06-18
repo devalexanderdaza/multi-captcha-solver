@@ -12,7 +12,6 @@ import {
   IImageToTextTaskResult,
   TaskTypes
 } from "anticaptcha";
-import { CaptchaServiceError, IpBlockedError } from "../errors/index.js";
 
 import { IMultiCaptchaSolver } from "../mcs.interface.js";
 
@@ -45,11 +44,11 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         error.code === ErrorCodes.ERROR_IP_BLOCKED
       ) {
         // Handle IP block
-        throw new IpBlockedError("AntiCaptcha");
+        throw new Error("IP blocked by AntiCaptcha.");
       }
       else {
         // Handle other errors
-        throw new CaptchaServiceError("Error getting balance from AntiCaptcha.", "AntiCaptcha");
+        throw new Error("Error getting balance from AntiCaptcha.");
       }
     }
   }
@@ -79,11 +78,11 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         error.code === ErrorCodes.ERROR_IP_BLOCKED
       ) {
         // Handle IP block
-        throw new IpBlockedError("AntiCaptcha");
+        throw new Error("IP blocked by AntiCaptcha.");
       }
       else {
         // Handle other errors
-        throw new CaptchaServiceError("Error solving captcha by AntiCaptcha.", "AntiCaptcha");
+        throw new Error("Error solving captcha by AntiCaptcha.");
       }
     }
   }

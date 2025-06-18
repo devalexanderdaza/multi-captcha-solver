@@ -5,7 +5,6 @@
  */
 
 import { Solver, APIError } from '2captcha';
-import { CaptchaServiceError } from '../errors/index.js';
 
 import { IMultiCaptchaSolver } from "../mcs.interface.js";
 
@@ -33,9 +32,9 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
       return await this.client.balance();
     } catch (error) {
       if (error instanceof APIError) {
-        throw new CaptchaServiceError(`Error getting balance from 2Captcha. ${error.cause}`, "2Captcha");
+        throw new Error(`Error getting balance from 2Captcha. ${error.cause}`);
       } else {
-        throw new CaptchaServiceError("Error getting balance from 2Captcha.", "2Captcha");
+        throw new Error(`Error getting balance from 2Captcha.`);
       }
     }
   }
@@ -52,9 +51,9 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
       return solvedCaptcha.data;
     } catch (error) {
       if (error instanceof APIError) {
-        throw new CaptchaServiceError(`Error solving captcha with 2Captcha. ${error.cause}`, "2Captcha");
+        throw new Error(`Error solving captcha with 2Captcha. ${error.cause}`);
       } else {
-        throw new CaptchaServiceError("Error solving captcha with 2Captcha.", "2Captcha");
+        throw new Error(`Error solving captcha with 2Captcha.`);
       }
     }
   }
