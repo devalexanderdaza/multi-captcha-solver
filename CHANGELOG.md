@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/devalexanderdaza/multi-captcha-solver/compare/v1.2.0...v1.2.1) (2025-06-18)
+
+
+### Bug Fixes
+
+* Add step to copy essential files to build directory for NPM package ([2d4ffc6](https://github.com/devalexanderdaza/multi-captcha-solver/commit/2d4ffc66d5e74798a6e246aa7ed488874520d08f))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
