@@ -12,11 +12,6 @@ export var ECaptchaSolverService;
 (function (ECaptchaSolverService) {
     ECaptchaSolverService["TwoCaptcha"] = "2captcha";
     ECaptchaSolverService["AntiCaptcha"] = "anticaptcha";
-    // TODO - Implement the following captcha solver services
-    // DeathByCaptcha = "deathbycaptcha",
-    // ImageTyperz = "imagetyperz",
-    // RuCaptcha = "rucaptcha",
-    // CaptchasIO = "captchasio",
-    // CapMonster = "capmonster",
+// TODO: The list of additional captcha solver services has been moved to the project documentation or issue tracker.
 })(ECaptchaSolverService || (ECaptchaSolverService = {}));
 //# sourceMappingURL=mcs.enum.js.map
