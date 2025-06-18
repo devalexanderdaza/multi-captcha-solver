@@ -4,9 +4,20 @@
  * Github: https://github.com/devalexanderdaza
  */
 
+import * as fs from 'fs';
+
 import { MultiCaptchaSolver } from './main.js';
 import { ECaptchaSolverService } from './mcs.enum.js';
 import { IMultiCaptchaSolverOptions } from './mcs.interface.js';
+
+// Read a env.json file to get the API key
+// Note: You can use dotenv package to load environment variables from a .env file
+// import dotenv from 'dotenv';
+// dotenv.config();
+
+// If you want to use a JSON file, you can read it like this:
+// import * as fs from 'fs';
+const env = JSON.parse(fs.readFileSync('env.json', 'utf8'));
 
 // Base64 encoded string of a captcha image
 const base64string: string =
@@ -14,8 +25,8 @@ const base64string: string =
 
 // MultiCaptchaSolver options
 const options: IMultiCaptchaSolverOptions = {
-  apiKey: 'YOUR_API_KEY', // Replace with your API key from the captcha service provider (e.g. 2Captcha, AntiCaptcha, etc.)
-  captchaService: ECaptchaSolverService.TwoCaptcha, // Replace with the captcha service provider you want to use (e.g. 2Captcha, AntiCaptcha, etc.)
+  apiKey: env.ANTICAPTCHA_API_KEY, // Replace with your API key from the captcha service provider (e.g. 2Captcha, AntiCaptcha, etc.)
+  captchaService: ECaptchaSolverService.AntiCaptcha, // Replace with the captcha service provider you want to use (e.g. 2Captcha, AntiCaptcha, etc.)
 };
 
 /**
