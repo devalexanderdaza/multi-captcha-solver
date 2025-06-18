@@ -1,8 +1,8 @@
-import { MultiCaptchaSolver } from '../main';
-import { ECaptchaSolverService } from '../mcs.enum';
-import { IMultiCaptchaSolverOptions } from '../mcs.interface';
-import { AntiCaptchaService } from '../services/anticaptcha.service';
-import { TwoCaptchaService } from '../services/twocaptcha.service';
+import { MultiCaptchaSolver } from '../main.js';
+import { ECaptchaSolverService } from '../mcs.enum.js';
+import { IMultiCaptchaSolverOptions } from '../mcs.interface.js';
+import { AntiCaptchaService } from '../services/anticaptcha.service.js';
+import { TwoCaptchaService } from '../services/twocaptcha.service.js';
 
 // Mock the services
 jest.mock('../services/anticaptcha.service');
@@ -26,12 +26,16 @@ describe('MultiCaptchaSolver', () => {
 
   describe('constructor', () => {
     it('should throw an error if no options are provided', () => {
-      expect(() => new MultiCaptchaSolver(null as any)).toThrow(
-        'No valid options provided.',
-      );
-      expect(() => new MultiCaptchaSolver(undefined as any)).toThrow(
-        'No valid options provided.',
-      );
+      expect(
+        () =>
+          new MultiCaptchaSolver(null as unknown as IMultiCaptchaSolverOptions),
+      ).toThrow('No valid options provided.');
+      expect(
+        () =>
+          new MultiCaptchaSolver(
+            undefined as unknown as IMultiCaptchaSolverOptions,
+          ),
+      ).toThrow('No valid options provided.');
     });
 
     it('should throw an error if apiKey is missing', () => {

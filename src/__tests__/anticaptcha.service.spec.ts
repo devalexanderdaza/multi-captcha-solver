@@ -1,5 +1,5 @@
-import { AntiCaptchaService } from '../services/anticaptcha.service';
 import { AntiCaptcha } from 'anticaptcha'; // Removed AntiCaptchaError, ErrorCodes, TaskTypes
+import { AntiCaptchaService } from '../services/anticaptcha.service.js';
 
 // Mock implementations for the instance methods that will be used by AntiCaptchaService
 const mockGetBalance = jest.fn();

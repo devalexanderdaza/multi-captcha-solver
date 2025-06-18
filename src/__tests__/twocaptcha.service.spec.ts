@@ -1,5 +1,6 @@
-import { TwoCaptchaService } from '../services/twocaptcha.service';
 import { Solver } from '2captcha'; // APIError will be accessed via jest.requireActual
+import { CaptchaServiceError, InvalidApiKeyError } from '../errors/index.js';
+import { TwoCaptchaService } from '../services/twocaptcha.service.js';
 
 // Mock implementations for the instance methods that will be used by TwoCaptchaService
 const mockTwoCaptchaBalance = jest.fn();
@@ -70,27 +71,34 @@ describe('TwoCaptchaService', () => {
       expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw "Error getting balance from 2Captcha. [error.cause]" for APIError', async () => {
-      const errorMessage = 'Insufficient funds';
+    it('should throw InvalidApiKeyError for wrong API key', async () => {
+      const errorMessage = 'ERROR_WRONG_USER_KEY';
       const error = createActualApiError(errorMessage);
-      // Ensure the error object actually has the 'cause' property as expected by the service
       if (!error.cause) error.cause = errorMessage;
 
       mockTwoCaptchaBalance.mockRejectedValue(error);
 
-      // The service formats the error message, so we match that format
-      await expect(service.getBalance()).rejects.toThrow(
-        `Error getting balance from 2Captcha. ${errorMessage}`,
-      );
+      await expect(service.getBalance()).rejects.toThrow(InvalidApiKeyError);
       expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw "Error getting balance from 2Captcha." for other errors', async () => {
+    it('should throw CaptchaServiceError for other API errors', async () => {
+      const errorMessage = 'Insufficient funds';
+      const error = createActualApiError(errorMessage);
+      if (!error.cause) error.cause = errorMessage;
+
+      mockTwoCaptchaBalance.mockRejectedValue(error);
+
+      await expect(service.getBalance()).rejects.toThrow(CaptchaServiceError);
+      expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw generic Error for other non-API errors', async () => {
       const error = new Error('Some other error');
       mockTwoCaptchaBalance.mockRejectedValue(error);
 
       await expect(service.getBalance()).rejects.toThrow(
-        'Error getting balance from 2Captcha.',
+        'An unexpected error occurred with 2Captcha while fetching balance.',
       );
       expect(mockTwoCaptchaBalance).toHaveBeenCalledTimes(1);
     });
@@ -108,7 +116,7 @@ describe('TwoCaptchaService', () => {
       expect(mockImageCaptcha).toHaveBeenCalledWith(base64string);
     });
 
-    it('should throw "Error solving captcha with 2Captcha. [error.cause]" for APIError', async () => {
+    it('should throw CaptchaServiceError for APIError', async () => {
       const errorMessage = 'CAPTCHA_UNSOLVABLE';
       const error = createActualApiError(errorMessage);
       if (!error.cause) error.cause = errorMessage;
@@ -116,17 +124,17 @@ describe('TwoCaptchaService', () => {
       mockImageCaptcha.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        `Error solving captcha with 2Captcha. ${errorMessage}`,
+        CaptchaServiceError,
       );
       expect(mockImageCaptcha).toHaveBeenCalledWith(base64string);
     });
 
-    it('should throw "Error solving captcha with 2Captcha." for other errors', async () => {
+    it('should throw generic Error for other non-API errors', async () => {
       const error = new Error('Some other error');
       mockImageCaptcha.mockRejectedValue(error);
 
       await expect(service.solveImageCaptcha(base64string)).rejects.toThrow(
-        'Error solving captcha with 2Captcha.',
+        'An unexpected error occurred with 2Captcha while solving image captcha.',
       );
       expect(mockImageCaptcha).toHaveBeenCalledWith(base64string);
     });

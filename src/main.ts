@@ -67,3 +67,19 @@ export class MultiCaptchaSolver {
     return this.captchaSolver.solveImageCaptcha(base64string);
   }
 }
+
+// Export custom errors for better error handling
+export {
+  CaptchaServiceError,
+  InsufficientBalanceError,
+  InvalidApiKeyError,
+  IpBlockedError,
+  MultiCaptchaError,
+} from './errors/index.js';
+
+// Export enums and interfaces for users
+export { ECaptchaSolverService } from './mcs.enum.js';
+export type {
+  IMultiCaptchaSolver,
+  IMultiCaptchaSolverOptions,
+} from './mcs.interface.js';
