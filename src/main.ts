@@ -15,13 +15,19 @@ const solverServiceMap: { [key in ECaptchaSolverService]?: new (apiKey: string) 
   [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
 };
 
+/**
+ * @class MultiCaptchaSolver
+ * @classdesc A class for solving captchas using multiple captcha solving services.
+ * @memberof MultiCaptchaSolver
+ */
 export class MultiCaptchaSolver {
   private captchaSolver: IMultiCaptchaSolver;
 
   /**
    * Creates an instance of MultiCaptchaSolver.
-   * @param {IMultiCaptchaSolverOptions} options - The options for the captcha solver.
-   * @memberof MultiCaptchaSolver
+   * @constructor
+   * @param {IMultiCaptchaSolverOptions} options - The options for configuring the captcha solver.
+   * Requires apiKey and captchaService to be specified.
    */
   constructor(options: IMultiCaptchaSolverOptions) {
     if (!options || !options.apiKey || !options.captchaService) {
@@ -38,19 +44,19 @@ export class MultiCaptchaSolver {
   }
 
   /**
-   * Get the balance of the captcha service.
+   * Retrieves the current balance from the selected captcha solving service.
    *
-   * @returns {Promise<number>} - The balance of the captcha service.
+   * @returns {Promise<number>} A promise that resolves with the current balance.
    */
   public async getBalance(): Promise<number> {
     return this.captchaSolver.getBalance();
   }
 
   /**
-   * Solve a captcha.
+   * Solves an image captcha.
    *
-   * @param {string} base64string - A base64 encoded string of the captcha image.
-   * @returns {Promise<string>} - The captcha solution.
+   * @param {string} base64string - A base64 encoded string of the captcha image to be solved.
+   * @returns {Promise<string>} A promise that resolves with the captcha solution text.
    */
   public async solveImageCaptcha(base64string: string): Promise<string> {
     return this.captchaSolver.solveImageCaptcha(base64string);
