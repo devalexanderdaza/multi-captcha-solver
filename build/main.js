@@ -35,7 +35,7 @@ export class MultiCaptchaSolver {
      * @returns {Promise<number>} - The balance of the captcha service.
      */
     async getBalance() {
-        return this.captchaSolver.getBalance();
+        return await this.captchaSolver.getBalance();
     }
     /**
      * Solve a captcha.
