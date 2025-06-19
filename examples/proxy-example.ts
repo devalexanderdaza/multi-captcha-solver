@@ -9,7 +9,7 @@ import {
   ECaptchaSolverService,
   MultiCaptchaSolver,
   ProxyOptions,
-} from './main.js';
+} from '../src/main.js';
 
 async function solveCaptchaWithProxyExample(): Promise<void> {
   // Configure your captcha solver

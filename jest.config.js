@@ -18,14 +18,12 @@ export default {
     'src/**/*.mts',
     '!src/**/*.d.ts',
     '!src/**/*.d.mts',
-    '!src/example.ts',
-    '!src/proxy-example.ts',
   ],
   // Quality Gates: Umbrales de cobertura de pruebas
   coverageThreshold: {
     global: {
       branches: 80,
-      functions: 88, // Temporalmente bajamos de 90 a 88 para pasar las pruebas actuales
+      functions: 88, // Configurado para el estado actual de cobertura
       lines: 90,
       statements: 90,
     },

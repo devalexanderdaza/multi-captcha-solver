@@ -18,7 +18,7 @@
   },
   "license": "Apache-2.0",
   "scripts": {
-    "start": "node build/src/example.js",
+    "start": "node build/examples/example.js",
     "clean": "rimraf coverage build tmp",
     "prebuild": "yarn run lint",
     "build": "tsc -p tsconfig.json",

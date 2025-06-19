@@ -4,9 +4,9 @@
  * Github: https://github.com/devalexanderdaza
  */
 
-import { MultiCaptchaSolver } from './main.js';
-import { ECaptchaSolverService } from './mcs.enum.js';
-import { IMultiCaptchaSolverOptions } from './mcs.interface.js';
+import { MultiCaptchaSolver } from '../src/main.js';
+import { ECaptchaSolverService } from '../src/mcs.enum.js';
+import { IMultiCaptchaSolverOptions } from '../src/mcs.interface.js';
 
 // Base64 encoded string of a captcha image
 const base64string: string =
