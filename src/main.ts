@@ -9,9 +9,9 @@ import {
   IMultiCaptchaSolver,
   IMultiCaptchaSolverOptions,
 } from './mcs.interface.js';
-
 import { AntiCaptchaService } from './services/anticaptcha.service.js';
 import { TwoCaptchaService } from './services/twocaptcha.service.js';
+import { withRetries } from './utils/retry.helper.js';
 
 const solverServiceMap: {
   [key in ECaptchaSolverService]?: new (apiKey: string) => IMultiCaptchaSolver;
@@ -27,6 +27,8 @@ const solverServiceMap: {
  */
 export class MultiCaptchaSolver {
   private captchaSolver: IMultiCaptchaSolver;
+  private readonly retries: number;
+  private readonly initialDelayMs: number = 500;
 
   /**
    * Creates an instance of MultiCaptchaSolver.
@@ -46,6 +48,8 @@ export class MultiCaptchaSolver {
     } else {
       throw new Error('Invalid or unsupported captcha service.');
     }
+
+    this.retries = options.retries ?? 3;
   }
 
   /**
@@ -54,7 +58,11 @@ export class MultiCaptchaSolver {
    * @returns {Promise<number>} A promise that resolves with the current balance.
    */
   public async getBalance(): Promise<number> {
-    return this.captchaSolver.getBalance();
+    return withRetries(
+      () => this.captchaSolver.getBalance(),
+      this.retries,
+      this.initialDelayMs,
+    );
   }
 
   /**
@@ -64,7 +72,11 @@ export class MultiCaptchaSolver {
    * @returns {Promise<string>} A promise that resolves with the captcha solution text.
    */
   public async solveImageCaptcha(base64string: string): Promise<string> {
-    return this.captchaSolver.solveImageCaptcha(base64string);
+    return withRetries(
+      () => this.captchaSolver.solveImageCaptcha(base64string),
+      this.retries,
+      this.initialDelayMs,
+    );
   }
 
   /**
@@ -78,7 +90,11 @@ export class MultiCaptchaSolver {
     websiteURL: string,
     websiteKey: string,
   ): Promise<string> {
-    return this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey);
+    return withRetries(
+      () => this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey),
+      this.retries,
+      this.initialDelayMs,
+    );
   }
 
   /**
@@ -92,7 +108,11 @@ export class MultiCaptchaSolver {
     websiteURL: string,
     websiteKey: string,
   ): Promise<string> {
-    return this.captchaSolver.solveHCaptcha(websiteURL, websiteKey);
+    return withRetries(
+      () => this.captchaSolver.solveHCaptcha(websiteURL, websiteKey),
+      this.retries,
+      this.initialDelayMs,
+    );
   }
 
   /**
@@ -110,11 +130,16 @@ export class MultiCaptchaSolver {
     minScore: number,
     pageAction: string,
   ): Promise<string> {
-    return this.captchaSolver.solveRecaptchaV3(
-      websiteURL,
-      websiteKey,
-      minScore,
-      pageAction,
+    return withRetries(
+      () =>
+        this.captchaSolver.solveRecaptchaV3(
+          websiteURL,
+          websiteKey,
+          minScore,
+          pageAction,
+        ),
+      this.retries,
+      this.initialDelayMs,
     );
   }
 }
