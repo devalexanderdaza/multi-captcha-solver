@@ -240,4 +240,100 @@ describe('AntiCaptchaService', () => {
       expect(mockGetTaskResult).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('solveRecaptchaV2', () => {
+    const websiteURL = 'https://example.com';
+    const websiteKey = 'test-site-key';
+    const mockTaskId = 456;
+    const mockRecaptchaToken = 'recaptcha-response-token';
+
+    it('should return the reCAPTCHA token on success', async () => {
+      mockCreateTask.mockResolvedValue(mockTaskId);
+      mockGetTaskResult.mockResolvedValue({
+        solution: { gRecaptchaResponse: mockRecaptchaToken },
+      });
+
+      const token = await service.solveRecaptchaV2(websiteURL, websiteKey);
+      expect(token).toBe(mockRecaptchaToken);
+      expect(mockCreateTask).toHaveBeenCalledWith({
+        type: jest.requireActual('anticaptcha').TaskTypes.RECAPTCHAV2_PROXYLESS,
+        websiteURL,
+        websiteKey,
+      });
+      expect(mockGetTaskResult).toHaveBeenCalledWith(mockTaskId);
+    });
+
+    it('should throw IpBlockedError when IP is blocked during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_IP_BLOCKED,
+        'IP blocked',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV2(websiteURL, websiteKey),
+      ).rejects.toThrow(IpBlockedError);
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw InvalidApiKeyError when API key is invalid during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_KEY_DOES_NOT_EXIST,
+        'Key does not exist',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV2(websiteURL, websiteKey),
+      ).rejects.toThrow(InvalidApiKeyError);
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw InsufficientBalanceError when balance is zero during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        actualAnticaptcha.ErrorCodes.ERROR_ZERO_BALANCE,
+        'Zero balance',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV2(websiteURL, websiteKey),
+      ).rejects.toThrow(InsufficientBalanceError);
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw CaptchaServiceError for other AntiCaptcha API errors during createTask', async () => {
+      const actualAnticaptcha = jest.requireActual('anticaptcha');
+      const error = new actualAnticaptcha.AntiCaptchaError(
+        'OTHER_ERROR',
+        'Some other API error',
+      );
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV2(websiteURL, websiteKey),
+      ).rejects.toThrow(CaptchaServiceError);
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+
+    it('should throw generic Error for non-AntiCaptcha errors during createTask', async () => {
+      const error = new Error('Some other error');
+      mockCreateTask.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV2(websiteURL, websiteKey),
+      ).rejects.toThrow(
+        'An unexpected error occurred with AntiCaptcha while solving reCAPTCHA v2.',
+      );
+      expect(mockCreateTask).toHaveBeenCalledTimes(1);
+      expect(mockGetTaskResult).not.toHaveBeenCalled();
+    });
+  });
 });

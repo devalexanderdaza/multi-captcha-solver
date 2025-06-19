@@ -66,6 +66,20 @@ export class MultiCaptchaSolver {
   public async solveImageCaptcha(base64string: string): Promise<string> {
     return this.captchaSolver.solveImageCaptcha(base64string);
   }
+
+  /**
+   * Solves a reCAPTCHA v2 challenge.
+   *
+   * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
+   * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
+   */
+  public async solveRecaptchaV2(
+    websiteURL: string,
+    websiteKey: string,
+  ): Promise<string> {
+    return this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey);
+  }
 }
 
 // Export custom errors for better error handling

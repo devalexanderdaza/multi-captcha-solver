@@ -10,6 +10,8 @@ import {
   ErrorCodes,
   IImageToTextTask,
   IImageToTextTaskResult,
+  IRecaptchaV2TaskProxyless,
+  IRecaptchaV2TaskProxylessResult,
   TaskTypes,
 } from 'anticaptcha';
 
@@ -129,6 +131,57 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
       } else {
         throw new Error(
           'An unexpected error occurred with AntiCaptcha while solving image captcha.',
+        );
+      }
+    }
+  }
+
+  async solveRecaptchaV2(
+    websiteURL: string,
+    websiteKey: string,
+  ): Promise<string> {
+    try {
+      // Creating reCAPTCHA v2 proxyless task
+      const taskId = await this.client.createTask<IRecaptchaV2TaskProxyless>({
+        type: TaskTypes.RECAPTCHAV2_PROXYLESS,
+        websiteURL,
+        websiteKey,
+      });
+
+      // Waiting for resolution and do something
+      const response =
+        await this.client.getTaskResult<IRecaptchaV2TaskProxylessResult>(
+          taskId,
+        );
+
+      return response.solution.gRecaptchaResponse;
+    } catch (error) {
+      if (error instanceof AntiCaptchaError) {
+        switch (error.code) {
+          case ErrorCodes.ERROR_IP_BLOCKED:
+            throw new IpBlockedError(
+              'AntiCaptcha',
+              'Your IP address is blocked.',
+            );
+          case ErrorCodes.ERROR_KEY_DOES_NOT_EXIST:
+            throw new InvalidApiKeyError(
+              'AntiCaptcha',
+              'The API key provided is invalid.',
+            );
+          case ErrorCodes.ERROR_ZERO_BALANCE:
+            throw new InsufficientBalanceError(
+              'AntiCaptcha',
+              'Insufficient balance in your account.',
+            );
+          default:
+            throw new CaptchaServiceError(
+              'AntiCaptcha',
+              `Failed to solve reCAPTCHA v2: ${error.message}`,
+            );
+        }
+      } else {
+        throw new Error(
+          'An unexpected error occurred with AntiCaptcha while solving reCAPTCHA v2.',
         );
       }
     }

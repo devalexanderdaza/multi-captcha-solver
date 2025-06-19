@@ -26,6 +26,15 @@ export interface IMultiCaptchaSolver {
    * @returns {Promise<string>} A promise that resolves with the text solution of the captcha.
    */
   solveImageCaptcha(base64string: string): Promise<string>;
+
+  /**
+   * Solves a reCAPTCHA v2 challenge.
+   *
+   * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
+   * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
+   */
+  solveRecaptchaV2(websiteURL: string, websiteKey: string): Promise<string>;
 }
 
 /**

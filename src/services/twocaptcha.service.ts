@@ -55,4 +55,24 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
       }
     }
   }
+
+  async solveRecaptchaV2(
+    websiteURL: string,
+    websiteKey: string,
+  ): Promise<string> {
+    try {
+      const result = await this.client.recaptcha(websiteKey, websiteURL);
+      return result.data;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw new CaptchaServiceError(
+          '2Captcha',
+          `Failed to solve reCAPTCHA v2: ${error.cause}`,
+        );
+      }
+      throw new Error(
+        'An unexpected error occurred with 2Captcha while solving reCAPTCHA v2.',
+      );
+    }
+  }
 }
