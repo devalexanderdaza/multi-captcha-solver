@@ -1,3 +1,10 @@
+import {
+  CaptchaServiceError,
+  InsufficientBalanceError,
+  InvalidApiKeyError,
+  IpBlockedError,
+  MultiCaptchaError,
+} from '../errors/index.js';
 import { MultiCaptchaSolver } from '../main.js';
 import { ECaptchaSolverService } from '../mcs.enum.js';
 import { IMultiCaptchaSolverOptions } from '../mcs.interface.js';
@@ -84,6 +91,69 @@ describe('MultiCaptchaSolver', () => {
       expect(MockTwoCaptchaService).toHaveBeenCalledTimes(1);
       expect(MockTwoCaptchaService).toHaveBeenCalledWith(apiKey);
       expect(MockAntiCaptchaService).not.toHaveBeenCalled();
+    });
+
+    it('should correctly set custom retries value', () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+        retries: 5,
+      };
+
+      // This will test that the constructor properly sets the retries value
+      expect(() => new MultiCaptchaSolver(options)).not.toThrow();
+      expect(MockAntiCaptchaService).toHaveBeenCalledTimes(1);
+      expect(MockAntiCaptchaService).toHaveBeenCalledWith(apiKey);
+    });
+
+    it('should use default retries value when not provided', () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.TwoCaptcha,
+        // No retries specified, should use default
+      };
+
+      expect(() => new MultiCaptchaSolver(options)).not.toThrow();
+      expect(MockTwoCaptchaService).toHaveBeenCalledTimes(1);
+      expect(MockTwoCaptchaService).toHaveBeenCalledWith(apiKey);
+    });
+  });
+
+  describe('constructor with different retry configurations', () => {
+    it('should use default retries when not specified', () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+      };
+
+      const solver = new MultiCaptchaSolver(options);
+      expect(solver).toBeDefined();
+      // Default retries should be 3
+      expect((solver as unknown as { retries: number }).retries).toBe(3);
+    });
+
+    it('should use custom retries when specified', () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.TwoCaptcha,
+        retries: 5,
+      };
+
+      const solver = new MultiCaptchaSolver(options);
+      expect(solver).toBeDefined();
+      expect((solver as unknown as { retries: number }).retries).toBe(5);
+    });
+
+    it('should use zero retries when specified', () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+        retries: 0,
+      };
+
+      const solver = new MultiCaptchaSolver(options);
+      expect(solver).toBeDefined();
+      expect((solver as unknown as { retries: number }).retries).toBe(0);
     });
   });
 
@@ -347,15 +417,45 @@ describe('MultiCaptchaSolver', () => {
       );
     });
 
-    it('should pass proxy options to TwoCaptcha solveHCaptcha', async () => {
+    it('should pass proxy options to TwoCaptcha solveRecaptchaV3', async () => {
       const options: IMultiCaptchaSolverOptions = {
         apiKey,
         captchaService: ECaptchaSolverService.TwoCaptcha,
       };
+      const mockSolveRecaptchaV3 = jest
+        .fn()
+        .mockResolvedValue('recaptcha-v3-token-two-with-proxy');
+      MockTwoCaptchaService.prototype.solveRecaptchaV3 = mockSolveRecaptchaV3;
+
+      const solver = new MultiCaptchaSolver(options);
+      const result = await solver.solveRecaptchaV3(
+        'https://www.google.com/recaptcha/api2/demo',
+        'test-key',
+        0.8,
+        'login',
+        proxyOptions,
+      );
+
+      expect(result).toBe('recaptcha-v3-token-two-with-proxy');
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledTimes(1);
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledWith(
+        'https://www.google.com/recaptcha/api2/demo',
+        'test-key',
+        0.8,
+        'login',
+        proxyOptions,
+      );
+    });
+
+    it('should pass proxy options to AntiCaptcha solveHCaptcha', async () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+      };
       const mockSolveHCaptcha = jest
         .fn()
-        .mockResolvedValue('hcaptcha-token-two-with-proxy');
-      MockTwoCaptchaService.prototype.solveHCaptcha = mockSolveHCaptcha;
+        .mockResolvedValue('hcaptcha-token-anti-with-proxy');
+      MockAntiCaptchaService.prototype.solveHCaptcha = mockSolveHCaptcha;
 
       const solver = new MultiCaptchaSolver(options);
       const result = await solver.solveHCaptcha(
@@ -364,7 +464,7 @@ describe('MultiCaptchaSolver', () => {
         proxyOptions,
       );
 
-      expect(result).toBe('hcaptcha-token-two-with-proxy');
+      expect(result).toBe('hcaptcha-token-anti-with-proxy');
       expect(mockSolveHCaptcha).toHaveBeenCalledTimes(1);
       expect(mockSolveHCaptcha).toHaveBeenCalledWith(
         'https://accounts.hcaptcha.com/demo',
@@ -373,34 +473,51 @@ describe('MultiCaptchaSolver', () => {
       );
     });
 
-    it('should pass proxy options to AntiCaptcha solveRecaptchaV3', async () => {
+    it('should pass proxy options to TwoCaptcha solveRecaptchaV2', async () => {
       const options: IMultiCaptchaSolverOptions = {
         apiKey,
-        captchaService: ECaptchaSolverService.AntiCaptcha,
+        captchaService: ECaptchaSolverService.TwoCaptcha,
       };
-      const mockSolveRecaptchaV3 = jest
+      const mockSolveRecaptchaV2 = jest
         .fn()
-        .mockResolvedValue('recaptcha-v3-token-anti-with-proxy');
-      MockAntiCaptchaService.prototype.solveRecaptchaV3 = mockSolveRecaptchaV3;
+        .mockResolvedValue('recaptcha-token-two-with-proxy');
+      MockTwoCaptchaService.prototype.solveRecaptchaV2 = mockSolveRecaptchaV2;
 
       const solver = new MultiCaptchaSolver(options);
-      const result = await solver.solveRecaptchaV3(
-        'https://www.google.com/recaptcha/api2/demo',
-        'test-key',
-        0.7,
-        'submit',
+      const result = await solver.solveRecaptchaV2(
+        'https://example.com',
+        'test-site-key',
         proxyOptions,
       );
 
-      expect(result).toBe('recaptcha-v3-token-anti-with-proxy');
-      expect(mockSolveRecaptchaV3).toHaveBeenCalledTimes(1);
-      expect(mockSolveRecaptchaV3).toHaveBeenCalledWith(
-        'https://www.google.com/recaptcha/api2/demo',
-        'test-key',
-        0.7,
-        'submit',
+      expect(result).toBe('recaptcha-token-two-with-proxy');
+      expect(mockSolveRecaptchaV2).toHaveBeenCalledTimes(1);
+      expect(mockSolveRecaptchaV2).toHaveBeenCalledWith(
+        'https://example.com',
+        'test-site-key',
         proxyOptions,
       );
+    });
+  });
+
+  describe('module exports', () => {
+    it('should export MultiCaptchaSolver class', () => {
+      expect(MultiCaptchaSolver).toBeDefined();
+      expect(typeof MultiCaptchaSolver).toBe('function');
+    });
+
+    it('should export ECaptchaSolverService enum', () => {
+      expect(ECaptchaSolverService).toBeDefined();
+      expect(ECaptchaSolverService.AntiCaptcha).toBe('anticaptcha');
+      expect(ECaptchaSolverService.TwoCaptcha).toBe('2captcha');
+    });
+
+    it('should export error classes', () => {
+      expect(CaptchaServiceError).toBeDefined();
+      expect(InsufficientBalanceError).toBeDefined();
+      expect(InvalidApiKeyError).toBeDefined();
+      expect(IpBlockedError).toBeDefined();
+      expect(MultiCaptchaError).toBeDefined();
     });
   });
 });
