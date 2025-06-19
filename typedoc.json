@@ -1,0 +1,26 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/main.ts",
+    "src/mcs.interface.ts",
+    "src/mcs.enum.ts",
+    "src/types/proxy.types.ts",
+    "src/errors/index.ts"
+  ],
+  "out": "docs",
+  "readme": "README.md",
+  "name": "Multi-Captcha Solver Adapter",
+  "includeVersion": true,
+  "theme": "default",
+  "categorizeByGroup": true,
+  "sort": [
+    "kind",
+    "instance-first",
+    "alphabetical"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "disableSources": false,
+  "includeHierarchySummary": true
+}

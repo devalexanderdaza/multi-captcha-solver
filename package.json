@@ -28,6 +28,8 @@
     "test": "jest --coverage",
     "prettier": "prettier --config .prettierrc --write .",
     "test:watch": "jest --watch",
+    "docs:generate": "typedoc",
+    "docs:serve": "typedoc --watch",
     "semantic-release": "semantic-release"
   },
   "keywords": [
@@ -72,6 +74,7 @@
     "semantic-release": "^22.0.7",
     "ts-api-utils": "~1.0",
     "ts-jest": "~29.1",
+    "typedoc": "^0.28.5",
     "typescript": "~5.1"
   },
   "engines": {

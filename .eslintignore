@@ -3,3 +3,4 @@ examples/
 build/
 node_modules/
 coverage/
+docs/
