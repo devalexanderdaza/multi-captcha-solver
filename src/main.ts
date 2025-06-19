@@ -80,6 +80,43 @@ export class MultiCaptchaSolver {
   ): Promise<string> {
     return this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey);
   }
+
+  /**
+   * Solves an hCaptcha challenge.
+   *
+   * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
+   * @param {string} websiteKey - The site key of the hCaptcha.
+   * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
+   */
+  public async solveHCaptcha(
+    websiteURL: string,
+    websiteKey: string,
+  ): Promise<string> {
+    return this.captchaSolver.solveHCaptcha(websiteURL, websiteKey);
+  }
+
+  /**
+   * Solves a reCAPTCHA v3 challenge.
+   *
+   * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
+   * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @param {number} minScore - The minimum score required (0.1 to 0.9).
+   * @param {string} pageAction - The action name for this request.
+   * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
+   */
+  public async solveRecaptchaV3(
+    websiteURL: string,
+    websiteKey: string,
+    minScore: number,
+    pageAction: string,
+  ): Promise<string> {
+    return this.captchaSolver.solveRecaptchaV3(
+      websiteURL,
+      websiteKey,
+      minScore,
+      pageAction,
+    );
+  }
 }
 
 // Export custom errors for better error handling

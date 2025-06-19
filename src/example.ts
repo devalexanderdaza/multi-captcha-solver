@@ -36,5 +36,43 @@ export const solveCaptchaExample = async (
   console.info(`Solution of captcha on ${options.captchaService}: ${solution}`);
 };
 
+/**
+ * Test the new hCaptcha and reCAPTCHA v3 methods.
+ */
+export const solveNewCaptchaTypesExample = async (
+  options: IMultiCaptchaSolverOptions,
+): Promise<void> => {
+  // Create a new instance of MultiCaptchaSolver
+  const solver: MultiCaptchaSolver = new MultiCaptchaSolver(options);
+
+  try {
+    // Get the balance of the captcha service
+    const balance: number = await solver.getBalance();
+    console.info(`Balance on ${options.captchaService}: ${balance}`);
+
+    // Example for hCaptcha
+    console.info('--- Testing hCaptcha ---');
+    const hCaptchaResult = await solver.solveHCaptcha(
+      'https://accounts.hcaptcha.com/demo',
+      '4c672d35-0701-42b2-88c3-78380b0db560',
+    );
+    console.info(`hCaptcha solution: ${hCaptchaResult}`);
+
+    // Example for reCAPTCHA v3
+    console.info('--- Testing reCAPTCHA v3 ---');
+    const recaptchaV3Result = await solver.solveRecaptchaV3(
+      'https://www.google.com/recaptcha/api2/demo',
+      '6Le-wvkSAAAAAPBMRTvw0Q4Muexq1bi0DJwx_mJ-',
+      0.3, // minimum score
+      'verify', // page action
+    );
+    console.info(`reCAPTCHA v3 solution: ${recaptchaV3Result}`);
+  } catch (error) {
+    console.error('Error solving captchas:', error);
+  }
+};
+
 // Run the example
 solveCaptchaExample(options);
+// Uncomment to test the new captcha types
+// solveNewCaptchaTypesExample(options);

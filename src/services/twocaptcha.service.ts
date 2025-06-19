@@ -75,4 +75,65 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
       );
     }
   }
+
+  /**
+   * Solves an hCaptcha challenge using the 2Captcha service.
+   *
+   * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
+   * @param {string} websiteKey - The site key of the hCaptcha.
+   * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
+   * @throws {Error} Throws an error if there's an issue solving the hCaptcha.
+   */
+  async solveHCaptcha(websiteURL: string, websiteKey: string): Promise<string> {
+    try {
+      const result = await this.client.hcaptcha(websiteKey, websiteURL);
+      return result.data;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw new CaptchaServiceError(
+          '2Captcha',
+          `Failed to solve hCaptcha: ${error.cause}`,
+        );
+      }
+      throw new Error(
+        'An unexpected error occurred with 2Captcha while solving hCaptcha.',
+      );
+    }
+  }
+
+  /**
+   * Solves a reCAPTCHA v3 challenge using the 2Captcha service.
+   *
+   * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
+   * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @param {number} minScore - The minimum score required (0.1 to 0.9).
+   * @param {string} pageAction - The action name for this request.
+   * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
+   * @throws {Error} Throws an error if there's an issue solving the reCAPTCHA v3.
+   */
+  async solveRecaptchaV3(
+    websiteURL: string,
+    websiteKey: string,
+    minScore: number,
+    pageAction: string,
+  ): Promise<string> {
+    try {
+      const result = await this.client.recaptcha(websiteKey, websiteURL, {
+        version: 'v3',
+        min_score: minScore,
+        action: pageAction,
+      });
+      return result.data;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw new CaptchaServiceError(
+          '2Captcha',
+          `Failed to solve reCAPTCHA v3: ${error.cause}`,
+        );
+      }
+      throw new Error(
+        'An unexpected error occurred with 2Captcha while solving reCAPTCHA v3.',
+      );
+    }
+  }
 }
