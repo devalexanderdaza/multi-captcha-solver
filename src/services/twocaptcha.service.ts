@@ -7,6 +7,7 @@
 import { APIError, Solver } from '2captcha';
 import { CaptchaServiceError, InvalidApiKeyError } from '../main.js';
 import { IMultiCaptchaSolver } from '../mcs.interface.js';
+import { ProxyOptions } from '../types/proxy.types.js';
 
 export class TwoCaptchaService implements IMultiCaptchaSolver {
   private client: Solver;
@@ -56,12 +57,40 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
     }
   }
 
+  /**
+   * Converts ProxyOptions to 2Captcha proxy format
+   * @private
+   */
+  private convertProxyOptions(proxy?: ProxyOptions): {
+    proxy?: string;
+    proxytype?: string;
+  } {
+    if (!proxy) return {};
+
+    const [host, port] = proxy.uri.split(':');
+    const proxyString =
+      proxy.username && proxy.password
+        ? `${proxy.username}:${proxy.password}@${host}:${port}`
+        : `${host}:${port}`;
+
+    return {
+      proxy: proxyString,
+      proxytype: proxy.type.toUpperCase(),
+    };
+  }
+
   async solveRecaptchaV2(
     websiteURL: string,
     websiteKey: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     try {
-      const result = await this.client.recaptcha(websiteKey, websiteURL);
+      const proxyConfig = this.convertProxyOptions(proxy);
+      const result = await this.client.recaptcha(
+        websiteKey,
+        websiteURL,
+        proxyConfig,
+      );
       return result.data;
     } catch (error) {
       if (error instanceof APIError) {
@@ -81,12 +110,22 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
    * @param {string} websiteKey - The site key of the hCaptcha.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
    * @throws {Error} Throws an error if there's an issue solving the hCaptcha.
    */
-  async solveHCaptcha(websiteURL: string, websiteKey: string): Promise<string> {
+  async solveHCaptcha(
+    websiteURL: string,
+    websiteKey: string,
+    proxy?: ProxyOptions,
+  ): Promise<string> {
     try {
-      const result = await this.client.hcaptcha(websiteKey, websiteURL);
+      const proxyConfig = this.convertProxyOptions(proxy);
+      const result = await this.client.hcaptcha(
+        websiteKey,
+        websiteURL,
+        proxyConfig,
+      );
       return result.data;
     } catch (error) {
       if (error instanceof APIError) {
@@ -108,6 +147,7 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
    * @param {string} websiteKey - The site key of the reCAPTCHA.
    * @param {number} minScore - The minimum score required (0.1 to 0.9).
    * @param {string} pageAction - The action name for this request.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    * @throws {Error} Throws an error if there's an issue solving the reCAPTCHA v3.
    */
@@ -116,12 +156,15 @@ export class TwoCaptchaService implements IMultiCaptchaSolver {
     websiteKey: string,
     minScore: number,
     pageAction: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     try {
+      const proxyConfig = this.convertProxyOptions(proxy);
       const result = await this.client.recaptcha(websiteKey, websiteURL, {
         version: 'v3',
         min_score: minScore,
         action: pageAction,
+        ...proxyConfig,
       });
       return result.data;
     } catch (error) {

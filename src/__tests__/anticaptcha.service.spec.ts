@@ -589,4 +589,98 @@ describe('AntiCaptchaService', () => {
       expect(mockGetTaskResult).not.toHaveBeenCalled();
     });
   });
+
+  describe('proxy support', () => {
+    const proxyOptions = {
+      type: 'http' as const,
+      uri: '127.0.0.1:8080',
+      username: 'proxyuser',
+      password: 'proxypass',
+    };
+
+    it('should pass proxy options to solveRecaptchaV2', async () => {
+      const mockTaskId = 456;
+      const mockSolutionText = 'recaptcha-token-with-proxy';
+      mockCreateTask.mockResolvedValue(mockTaskId);
+      mockGetTaskResult.mockResolvedValue({
+        solution: { gRecaptchaResponse: mockSolutionText },
+      });
+
+      const result = await service.solveRecaptchaV2(
+        'https://example.com',
+        'test-key',
+        proxyOptions,
+      );
+
+      expect(result).toBe(mockSolutionText);
+      expect(mockCreateTask).toHaveBeenCalledWith({
+        type: jest.requireActual('anticaptcha').TaskTypes.RECAPTCHAV2_PROXYLESS,
+        websiteURL: 'https://example.com',
+        websiteKey: 'test-key',
+        proxyType: 'http',
+        proxyAddress: '127.0.0.1',
+        proxyPort: 8080,
+        proxyLogin: 'proxyuser',
+        proxyPassword: 'proxypass',
+      });
+    });
+
+    it('should pass proxy options to solveHCaptcha', async () => {
+      const mockTaskId = 789;
+      const mockSolutionText = 'hcaptcha-token-with-proxy';
+      mockCreateTask.mockResolvedValue(mockTaskId);
+      mockGetTaskResult.mockResolvedValue({
+        solution: { gRecaptchaResponse: mockSolutionText },
+      });
+
+      const result = await service.solveHCaptcha(
+        'https://accounts.hcaptcha.com/demo',
+        'test-key',
+        proxyOptions,
+      );
+
+      expect(result).toBe(mockSolutionText);
+      expect(mockCreateTask).toHaveBeenCalledWith({
+        type: jest.requireActual('anticaptcha').TaskTypes.HCAPTCHA_PROXYLESS,
+        websiteURL: 'https://accounts.hcaptcha.com/demo',
+        websiteKey: 'test-key',
+        proxyType: 'http',
+        proxyAddress: '127.0.0.1',
+        proxyPort: 8080,
+        proxyLogin: 'proxyuser',
+        proxyPassword: 'proxypass',
+      });
+    });
+
+    it('should pass proxy options to solveRecaptchaV3', async () => {
+      const mockTaskId = 101112;
+      const mockSolutionText = 'recaptcha-v3-token-with-proxy';
+      mockCreateTask.mockResolvedValue(mockTaskId);
+      mockGetTaskResult.mockResolvedValue({
+        solution: { gRecaptchaResponse: mockSolutionText },
+      });
+
+      const result = await service.solveRecaptchaV3(
+        'https://www.google.com/recaptcha/api2/demo',
+        'test-key',
+        0.5,
+        'login',
+        proxyOptions,
+      );
+
+      expect(result).toBe(mockSolutionText);
+      expect(mockCreateTask).toHaveBeenCalledWith({
+        type: jest.requireActual('anticaptcha').TaskTypes.RECAPTCHA_PROXYLESS,
+        websiteURL: 'https://www.google.com/recaptcha/api2/demo',
+        websiteKey: 'test-key',
+        minScore: jest.requireActual('anticaptcha').RecaptchaWorkerScore.MEDIUM,
+        pageAction: 'login',
+        proxyType: 'http',
+        proxyAddress: '127.0.0.1',
+        proxyPort: 8080,
+        proxyLogin: 'proxyuser',
+        proxyPassword: 'proxypass',
+      });
+    });
+  });
 });

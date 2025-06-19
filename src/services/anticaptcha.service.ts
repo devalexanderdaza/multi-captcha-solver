@@ -27,6 +27,7 @@ import {
   IpBlockedError,
 } from '../errors/api.error.js';
 import { IMultiCaptchaSolver } from '../mcs.interface.js';
+import { ProxyOptions } from '../types/proxy.types.js';
 
 /**
  * @class AntiCaptchaService
@@ -146,20 +147,26 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
    * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    * @throws {Error} Throws an error if the IP is blocked or if there's another issue solving the reCAPTCHA v2.
    */
   async solveRecaptchaV2(
     websiteURL: string,
     websiteKey: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     try {
-      // Creating reCAPTCHA v2 proxyless task
-      const taskId = await this.client.createTask<IRecaptchaV2TaskProxyless>({
+      // Creating reCAPTCHA v2 task (with or without proxy)
+      const taskConfig: IRecaptchaV2TaskProxyless = {
         type: TaskTypes.RECAPTCHAV2_PROXYLESS,
         websiteURL,
         websiteKey,
-      });
+        ...this.convertProxyOptions(proxy),
+      };
+
+      const taskId =
+        await this.client.createTask<IRecaptchaV2TaskProxyless>(taskConfig);
 
       // Waiting for resolution and do something
       const response =
@@ -205,17 +212,26 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
    * @param {string} websiteKey - The site key of the hCaptcha.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
    * @throws {Error} Throws an error if the IP is blocked or if there's another issue solving the hCaptcha.
    */
-  async solveHCaptcha(websiteURL: string, websiteKey: string): Promise<string> {
+  async solveHCaptcha(
+    websiteURL: string,
+    websiteKey: string,
+    proxy?: ProxyOptions,
+  ): Promise<string> {
     try {
-      // Creating hCaptcha proxyless task
-      const taskId = await this.client.createTask<IHCaptchaTaskProxyless>({
+      // Creating hCaptcha task (with or without proxy)
+      const taskConfig: IHCaptchaTaskProxyless = {
         type: TaskTypes.HCAPTCHA_PROXYLESS,
         websiteURL,
         websiteKey,
-      });
+        ...this.convertProxyOptions(proxy),
+      };
+
+      const taskId =
+        await this.client.createTask<IHCaptchaTaskProxyless>(taskConfig);
 
       // Waiting for resolution and do something
       const response =
@@ -261,6 +277,7 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
    * @param {string} websiteKey - The site key of the reCAPTCHA.
    * @param {number} minScore - The minimum score required (0.1 to 0.9).
    * @param {string} pageAction - The action name for this request.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    * @throws {Error} Throws an error if the IP is blocked or if there's another issue solving the reCAPTCHA v3.
    */
@@ -269,6 +286,7 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
     websiteKey: string,
     minScore: number,
     pageAction: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     try {
       // Validate minScore parameter and map to RecaptchaWorkerScore enum
@@ -281,14 +299,18 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         workerScore = RecaptchaWorkerScore.HIGH;
       }
 
-      // Creating reCAPTCHA v3 proxyless task
-      const taskId = await this.client.createTask<IRecaptchaV3TaskProxyless>({
+      // Creating reCAPTCHA v3 task (with or without proxy)
+      const taskConfig: IRecaptchaV3TaskProxyless = {
         type: TaskTypes.RECAPTCHA_PROXYLESS,
         websiteURL,
         websiteKey,
         minScore: workerScore,
         pageAction,
-      });
+        ...this.convertProxyOptions(proxy),
+      };
+
+      const taskId =
+        await this.client.createTask<IRecaptchaV3TaskProxyless>(taskConfig);
 
       // Waiting for resolution and do something
       const response =
@@ -327,5 +349,27 @@ export class AntiCaptchaService implements IMultiCaptchaSolver {
         );
       }
     }
+  } /**
+   * Converts ProxyOptions to AntiCaptcha proxy format
+   * @private
+   */
+  private convertProxyOptions(proxy?: ProxyOptions):
+    | {
+        proxyType?: string;
+        proxyAddress?: string;
+        proxyPort?: number;
+        proxyLogin?: string;
+        proxyPassword?: string;
+      }
+    | undefined {
+    if (!proxy) return undefined;
+
+    return {
+      proxyType: proxy.type,
+      proxyAddress: proxy.uri.split(':')[0],
+      proxyPort: parseInt(proxy.uri.split(':')[1]),
+      proxyLogin: proxy.username,
+      proxyPassword: proxy.password,
+    };
   }
 }

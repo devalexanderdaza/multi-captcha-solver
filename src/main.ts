@@ -11,6 +11,7 @@ import {
 } from './mcs.interface.js';
 import { AntiCaptchaService } from './services/anticaptcha.service.js';
 import { TwoCaptchaService } from './services/twocaptcha.service.js';
+import { ProxyOptions } from './types/proxy.types.js';
 import { withRetries } from './utils/retry.helper.js';
 
 const solverServiceMap: {
@@ -84,14 +85,16 @@ export class MultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
    * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    */
   public async solveRecaptchaV2(
     websiteURL: string,
     websiteKey: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     return withRetries(
-      () => this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey),
+      () => this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey, proxy),
       this.retries,
       this.initialDelayMs,
     );
@@ -102,14 +105,16 @@ export class MultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
    * @param {string} websiteKey - The site key of the hCaptcha.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
    */
   public async solveHCaptcha(
     websiteURL: string,
     websiteKey: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     return withRetries(
-      () => this.captchaSolver.solveHCaptcha(websiteURL, websiteKey),
+      () => this.captchaSolver.solveHCaptcha(websiteURL, websiteKey, proxy),
       this.retries,
       this.initialDelayMs,
     );
@@ -122,6 +127,7 @@ export class MultiCaptchaSolver {
    * @param {string} websiteKey - The site key of the reCAPTCHA.
    * @param {number} minScore - The minimum score required (0.1 to 0.9).
    * @param {string} pageAction - The action name for this request.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    */
   public async solveRecaptchaV3(
@@ -129,6 +135,7 @@ export class MultiCaptchaSolver {
     websiteKey: string,
     minScore: number,
     pageAction: string,
+    proxy?: ProxyOptions,
   ): Promise<string> {
     return withRetries(
       () =>
@@ -137,6 +144,7 @@ export class MultiCaptchaSolver {
           websiteKey,
           minScore,
           pageAction,
+          proxy,
         ),
       this.retries,
       this.initialDelayMs,
@@ -159,3 +167,4 @@ export type {
   IMultiCaptchaSolver,
   IMultiCaptchaSolverOptions,
 } from './mcs.interface.js';
+export type { ProxyOptions } from './types/proxy.types.js';

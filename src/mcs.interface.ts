@@ -5,6 +5,7 @@
  */
 
 import { ECaptchaSolverService } from './mcs.enum.js';
+import { ProxyOptions } from './types/proxy.types.js';
 
 /**
  * Defines the contract for a captcha solving service.
@@ -32,18 +33,28 @@ export interface IMultiCaptchaSolver {
    *
    * @param {string} websiteURL - The URL of the website where the reCAPTCHA is located.
    * @param {string} websiteKey - The site key of the reCAPTCHA.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    */
-  solveRecaptchaV2(websiteURL: string, websiteKey: string): Promise<string>;
+  solveRecaptchaV2(
+    websiteURL: string,
+    websiteKey: string,
+    proxy?: ProxyOptions,
+  ): Promise<string>;
 
   /**
    * Solves an hCaptcha challenge.
    *
    * @param {string} websiteURL - The URL of the website where the hCaptcha is located.
    * @param {string} websiteKey - The site key of the hCaptcha.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the hCaptcha token.
    */
-  solveHCaptcha(websiteURL: string, websiteKey: string): Promise<string>;
+  solveHCaptcha(
+    websiteURL: string,
+    websiteKey: string,
+    proxy?: ProxyOptions,
+  ): Promise<string>;
 
   /**
    * Solves a reCAPTCHA v3 challenge.
@@ -52,6 +63,7 @@ export interface IMultiCaptchaSolver {
    * @param {string} websiteKey - The site key of the reCAPTCHA.
    * @param {number} minScore - The minimum score required (0.1 to 0.9).
    * @param {string} pageAction - The action name for this request.
+   * @param {ProxyOptions} proxy - Optional proxy configuration for solving the captcha.
    * @returns {Promise<string>} A promise that resolves with the reCAPTCHA token.
    */
   solveRecaptchaV3(
@@ -59,6 +71,7 @@ export interface IMultiCaptchaSolver {
     websiteKey: string,
     minScore: number,
     pageAction: string,
+    proxy?: ProxyOptions,
   ): Promise<string>;
 }
 

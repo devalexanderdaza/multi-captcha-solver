@@ -156,7 +156,7 @@ describe('TwoCaptchaService', () => {
 
       const token = await service.solveRecaptchaV2(websiteURL, websiteKey);
       expect(token).toBe(mockRecaptchaToken);
-      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
 
     it('should throw CaptchaServiceError for APIError', async () => {
@@ -169,7 +169,7 @@ describe('TwoCaptchaService', () => {
       await expect(
         service.solveRecaptchaV2(websiteURL, websiteKey),
       ).rejects.toThrow(CaptchaServiceError);
-      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
 
     it('should throw generic Error for other non-API errors', async () => {
@@ -181,7 +181,7 @@ describe('TwoCaptchaService', () => {
       ).rejects.toThrow(
         'An unexpected error occurred with 2Captcha while solving reCAPTCHA v2.',
       );
-      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
   });
 
@@ -195,7 +195,7 @@ describe('TwoCaptchaService', () => {
 
       const token = await service.solveHCaptcha(websiteURL, websiteKey);
       expect(token).toBe(mockHCaptchaToken);
-      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
 
     it('should throw CaptchaServiceError for APIError', async () => {
@@ -208,7 +208,7 @@ describe('TwoCaptchaService', () => {
       await expect(
         service.solveHCaptcha(websiteURL, websiteKey),
       ).rejects.toThrow(CaptchaServiceError);
-      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
 
     it('should throw generic Error for other non-API errors', async () => {
@@ -220,7 +220,7 @@ describe('TwoCaptchaService', () => {
       ).rejects.toThrow(
         'An unexpected error occurred with 2Captcha while solving hCaptcha.',
       );
-      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {});
     });
   });
 
@@ -279,6 +279,82 @@ describe('TwoCaptchaService', () => {
         min_score: minScore,
         action: pageAction,
       });
+    });
+  });
+
+  describe('proxy support', () => {
+    const proxyOptions = {
+      type: 'http' as const,
+      uri: '127.0.0.1:8080',
+      username: 'proxyuser',
+      password: 'proxypass',
+    };
+
+    it('should pass proxy options to solveRecaptchaV2', async () => {
+      mockRecaptcha.mockResolvedValue({ data: 'token-with-proxy' });
+
+      const result = await service.solveRecaptchaV2(
+        'https://example.com',
+        'test-key',
+        proxyOptions,
+      );
+
+      expect(result).toBe('token-with-proxy');
+      expect(mockRecaptcha).toHaveBeenCalledWith(
+        'test-key',
+        'https://example.com',
+        {
+          proxy: 'proxyuser:proxypass@127.0.0.1:8080',
+          proxytype: 'HTTP',
+        },
+      );
+    });
+
+    it('should pass proxy options to solveHCaptcha', async () => {
+      mockHcaptcha.mockResolvedValue({ data: 'hcaptcha-token-with-proxy' });
+
+      const result = await service.solveHCaptcha(
+        'https://accounts.hcaptcha.com/demo',
+        'test-key',
+        proxyOptions,
+      );
+
+      expect(result).toBe('hcaptcha-token-with-proxy');
+      expect(mockHcaptcha).toHaveBeenCalledWith(
+        'test-key',
+        'https://accounts.hcaptcha.com/demo',
+        {
+          proxy: 'proxyuser:proxypass@127.0.0.1:8080',
+          proxytype: 'HTTP',
+        },
+      );
+    });
+
+    it('should pass proxy options to solveRecaptchaV3', async () => {
+      mockRecaptcha.mockResolvedValue({
+        data: 'recaptcha-v3-token-with-proxy',
+      });
+
+      const result = await service.solveRecaptchaV3(
+        'https://www.google.com/recaptcha/api2/demo',
+        'test-key',
+        0.5,
+        'login',
+        proxyOptions,
+      );
+
+      expect(result).toBe('recaptcha-v3-token-with-proxy');
+      expect(mockRecaptcha).toHaveBeenCalledWith(
+        'test-key',
+        'https://www.google.com/recaptcha/api2/demo',
+        {
+          version: 'v3',
+          min_score: 0.5,
+          action: 'login',
+          proxy: 'proxyuser:proxypass@127.0.0.1:8080',
+          proxytype: 'HTTP',
+        },
+      );
     });
   });
 });
