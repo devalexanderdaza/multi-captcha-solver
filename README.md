@@ -30,48 +30,47 @@ A powerful and easy-to-use NodeJS library that unifies multiple captcha-solving 
 npm install multi-captcha-solver-adapter
 ```
 
-## 👨‍💻 Basic Usage
+## 👨‍💻 Usage Example
 
-Here's a quick example of how to solve an image captcha, including the new robust error handling:
+Here's a quick example of how to solve a reCAPTCHA v2, including the new robust error handling:
 
 ```typescript
 import {
   MultiCaptchaSolver,
   ECaptchaSolverService,
-} from 'multi-captcha-solver-adapter';
-// Import custom errors to handle specific cases
-import {
+  // Import custom errors to handle specific cases!
+  InvalidApiKeyError,
   CaptchaServiceError,
-  IpBlockedError,
-} from 'multi-captcha-solver-adapter/errors';
-
-// Your base64-encoded captcha image
-const imageBase64 = '...';
+} from 'multi-captcha-solver-adapter';
 
 const solve = async () => {
   try {
     const solver = new MultiCaptchaSolver({
       apiKey: 'YOUR_PROVIDER_API_KEY',
-      captchaService: ECaptchaSolverService.AntiCaptcha, // Or .TwoCaptcha
+      captchaService: ECaptchaSolverService.TwoCaptcha,
     });
 
     // 1. (Optional) Check your balance
     const balance = await solver.getBalance();
     console.log(`Your current balance is: $${balance}`);
 
-    // 2. Solve the captcha
-    const solution = await solver.solveImageCaptcha(imageBase64);
-    console.log(`🎉 The solution is: ${solution}!`);
+    // 2. Solve the reCAPTCHA
+    const recaptchaToken = await solver.solveRecaptchaV2(
+      'https://example.com', 
+      'your-google-site-key'
+    );
+    console.log(`🎉 The reCAPTCHA token is: ${recaptchaToken}!`);
+
   } catch (error) {
     // Now you can handle specific errors!
-    if (error instanceof IpBlockedError) {
+    if (error instanceof InvalidApiKeyError) {
       console.error(
-        `IP has been blocked by ${error.service}. Please check your proxy or wait.`,
+        `API Key is invalid for ${error.service}. Please check it and try again.`
       );
     } else if (error instanceof CaptchaServiceError) {
       console.error(
         `An API error occurred with ${error.service}:`,
-        error.message,
+        error.message
       );
     } else {
       console.error('😱 An unexpected error occurred:', error);
@@ -81,6 +80,83 @@ const solve = async () => {
 
 solve();
 ```
+
+## 🎯 Supported Captcha Types
+
+### Image Captcha
+
+Solve traditional image-based captchas:
+
+```typescript
+const solution = await solver.solveImageCaptcha(base64ImageString);
+```
+
+### reCAPTCHA v2
+
+Solve Google's reCAPTCHA v2 challenges:
+
+```typescript
+const recaptchaToken = await solver.solveRecaptchaV2(
+  'https://example.com',  // Website URL
+  'site-key-here'         // Google site key
+);
+```
+
+## 🛡️ Error Handling
+
+The library provides specific error types for better error handling:
+
+```typescript
+import {
+  MultiCaptchaError,      // Base error class
+  CaptchaServiceError,    // General API errors
+  InvalidApiKeyError,     // Invalid API key
+  InsufficientBalanceError, // Not enough balance
+  IpBlockedError,         // IP address blocked
+} from 'multi-captcha-solver-adapter';
+
+try {
+  // Your captcha solving code
+} catch (error) {
+  if (error instanceof InvalidApiKeyError) {
+    // Handle invalid API key
+    console.error(`Invalid API key for ${error.service}`);
+  } else if (error instanceof InsufficientBalanceError) {
+    // Handle insufficient balance
+    console.error(`Insufficient balance in ${error.service}`);
+  } else if (error instanceof IpBlockedError) {
+    // Handle blocked IP
+    console.error(`IP blocked by ${error.service}`);
+  } else if (error instanceof CaptchaServiceError) {
+    // Handle other API errors
+    console.error(`API error in ${error.service}: ${error.message}`);
+  } else if (error instanceof MultiCaptchaError) {
+    // Handle other library errors
+    console.error(`Library error: ${error.message}`);
+  }
+}
+```
+
+## 🔧 API Reference
+
+### MultiCaptchaSolver
+
+#### Constructor
+
+```typescript
+new MultiCaptchaSolver(options: IMultiCaptchaSolverOptions)
+```
+
+#### Methods
+
+- `getBalance(): Promise<number>` - Get account balance
+- `solveImageCaptcha(base64string: string): Promise<string>` - Solve image captcha
+- `solveRecaptchaV2(websiteURL: string, websiteKey: string): Promise<string>` - Solve reCAPTCHA v2
+
+#### Supported Services
+
+- `ECaptchaSolverService.TwoCaptcha` - 2Captcha service
+- `ECaptchaSolverService.AntiCaptcha` - Anti-Captcha service
 
 ## 💖 Contributing
 
@@ -94,7 +170,7 @@ This project is licensed under the Apache-2.0 License. See the [LICENSE](./LICEN
 
 ### Author
 
-**Neyib Alexander Daza Guerrero**
+#### Neyib Alexander Daza Guerrero
 
 - **Email**: [dev.alexander.daza@gmail.com](mailto:dev.alexander.daza@gmail.com)
 - **GitHub**: [@devalexanderdaza](https://github.com/devalexanderdaza)
