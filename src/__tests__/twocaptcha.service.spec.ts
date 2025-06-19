@@ -6,6 +6,7 @@ import { TwoCaptchaService } from '../services/twocaptcha.service.js';
 const mockTwoCaptchaBalance = jest.fn();
 const mockImageCaptcha = jest.fn();
 const mockRecaptcha = jest.fn();
+const mockHcaptcha = jest.fn();
 
 // Mock the external '2captcha' library
 jest.mock('2captcha', () => {
@@ -17,6 +18,7 @@ jest.mock('2captcha', () => {
       balance: mockTwoCaptchaBalance,
       imageCaptcha: mockImageCaptcha,
       recaptcha: mockRecaptcha,
+      hcaptcha: mockHcaptcha,
     })),
   };
 });
@@ -54,6 +56,7 @@ describe('TwoCaptchaService', () => {
     mockTwoCaptchaBalance.mockClear().mockReset();
     mockImageCaptcha.mockClear().mockReset();
     mockRecaptcha.mockClear().mockReset();
+    mockHcaptcha.mockClear().mockReset();
     service = new TwoCaptchaService(apiKey);
   });
 
@@ -179,6 +182,103 @@ describe('TwoCaptchaService', () => {
         'An unexpected error occurred with 2Captcha while solving reCAPTCHA v2.',
       );
       expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+    });
+  });
+
+  describe('solveHCaptcha', () => {
+    const websiteURL = 'https://accounts.hcaptcha.com/demo';
+    const websiteKey = '4c672d35-0701-42b2-88c3-78380b0db560';
+    const mockHCaptchaToken = 'hcaptcha-response-token';
+
+    it('should return the hCaptcha token on success', async () => {
+      mockHcaptcha.mockResolvedValue({ data: mockHCaptchaToken });
+
+      const token = await service.solveHCaptcha(websiteURL, websiteKey);
+      expect(token).toBe(mockHCaptchaToken);
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+    });
+
+    it('should throw CaptchaServiceError for APIError', async () => {
+      const errorMessage = 'HCAPTCHA_INVALID_SITEKEY';
+      const error = createActualApiError(errorMessage);
+      if (!error.cause) error.cause = errorMessage;
+
+      mockHcaptcha.mockRejectedValue(error);
+
+      await expect(
+        service.solveHCaptcha(websiteURL, websiteKey),
+      ).rejects.toThrow(CaptchaServiceError);
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+    });
+
+    it('should throw generic Error for other non-API errors', async () => {
+      const error = new Error('Some other error');
+      mockHcaptcha.mockRejectedValue(error);
+
+      await expect(
+        service.solveHCaptcha(websiteURL, websiteKey),
+      ).rejects.toThrow(
+        'An unexpected error occurred with 2Captcha while solving hCaptcha.',
+      );
+      expect(mockHcaptcha).toHaveBeenCalledWith(websiteKey, websiteURL);
+    });
+  });
+
+  describe('solveRecaptchaV3', () => {
+    const websiteURL = 'https://www.google.com/recaptcha/api2/demo';
+    const websiteKey = '6Le-wvkSAAAAAPBMRTvw0Q4Muexq1bi0DJwx_mJ-';
+    const minScore = 0.3;
+    const pageAction = 'verify';
+    const mockRecaptchaV3Token = 'recaptcha-v3-response-token';
+
+    it('should return the reCAPTCHA v3 token on success', async () => {
+      mockRecaptcha.mockResolvedValue({ data: mockRecaptchaV3Token });
+
+      const token = await service.solveRecaptchaV3(
+        websiteURL,
+        websiteKey,
+        minScore,
+        pageAction,
+      );
+      expect(token).toBe(mockRecaptchaV3Token);
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {
+        version: 'v3',
+        min_score: minScore,
+        action: pageAction,
+      });
+    });
+
+    it('should throw CaptchaServiceError for APIError', async () => {
+      const errorMessage = 'RECAPTCHA_INVALID_SITEKEY';
+      const error = createActualApiError(errorMessage);
+      if (!error.cause) error.cause = errorMessage;
+
+      mockRecaptcha.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV3(websiteURL, websiteKey, minScore, pageAction),
+      ).rejects.toThrow(CaptchaServiceError);
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {
+        version: 'v3',
+        min_score: minScore,
+        action: pageAction,
+      });
+    });
+
+    it('should throw generic Error for other non-API errors', async () => {
+      const error = new Error('Some other error');
+      mockRecaptcha.mockRejectedValue(error);
+
+      await expect(
+        service.solveRecaptchaV3(websiteURL, websiteKey, minScore, pageAction),
+      ).rejects.toThrow(
+        'An unexpected error occurred with 2Captcha while solving reCAPTCHA v3.',
+      );
+      expect(mockRecaptcha).toHaveBeenCalledWith(websiteKey, websiteURL, {
+        version: 'v3',
+        min_score: minScore,
+        action: pageAction,
+      });
     });
   });
 });

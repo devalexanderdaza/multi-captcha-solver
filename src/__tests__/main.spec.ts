@@ -190,4 +190,108 @@ describe('MultiCaptchaSolver', () => {
       expect(mockSolveRecaptchaV2).toHaveBeenCalledWith(websiteURL, websiteKey);
     });
   });
+
+  describe('solveHCaptcha', () => {
+    const websiteURL = 'https://accounts.hcaptcha.com/demo';
+    const websiteKey = '4c672d35-0701-42b2-88c3-78380b0db560';
+
+    it('should call solveHCaptcha on the instantiated AntiCaptchaService', async () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+      };
+      const mockSolveHCaptcha = jest
+        .fn()
+        .mockResolvedValue('hcaptcha-token-anti');
+      MockAntiCaptchaService.prototype.solveHCaptcha = mockSolveHCaptcha;
+
+      const solver = new MultiCaptchaSolver(options);
+      const result = await solver.solveHCaptcha(websiteURL, websiteKey);
+
+      expect(result).toBe('hcaptcha-token-anti');
+      expect(mockSolveHCaptcha).toHaveBeenCalledTimes(1);
+      expect(mockSolveHCaptcha).toHaveBeenCalledWith(websiteURL, websiteKey);
+    });
+
+    it('should call solveHCaptcha on the instantiated TwoCaptchaService', async () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.TwoCaptcha,
+      };
+      const mockSolveHCaptcha = jest
+        .fn()
+        .mockResolvedValue('hcaptcha-token-two');
+      MockTwoCaptchaService.prototype.solveHCaptcha = mockSolveHCaptcha;
+
+      const solver = new MultiCaptchaSolver(options);
+      const result = await solver.solveHCaptcha(websiteURL, websiteKey);
+
+      expect(result).toBe('hcaptcha-token-two');
+      expect(mockSolveHCaptcha).toHaveBeenCalledTimes(1);
+      expect(mockSolveHCaptcha).toHaveBeenCalledWith(websiteURL, websiteKey);
+    });
+  });
+
+  describe('solveRecaptchaV3', () => {
+    const websiteURL = 'https://www.google.com/recaptcha/api2/demo';
+    const websiteKey = '6Le-wvkSAAAAAPBMRTvw0Q4Muexq1bi0DJwx_mJ-';
+    const minScore = 0.3;
+    const pageAction = 'verify';
+
+    it('should call solveRecaptchaV3 on the instantiated AntiCaptchaService', async () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.AntiCaptcha,
+      };
+      const mockSolveRecaptchaV3 = jest
+        .fn()
+        .mockResolvedValue('recaptcha-v3-token-anti');
+      MockAntiCaptchaService.prototype.solveRecaptchaV3 = mockSolveRecaptchaV3;
+
+      const solver = new MultiCaptchaSolver(options);
+      const result = await solver.solveRecaptchaV3(
+        websiteURL,
+        websiteKey,
+        minScore,
+        pageAction,
+      );
+
+      expect(result).toBe('recaptcha-v3-token-anti');
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledTimes(1);
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledWith(
+        websiteURL,
+        websiteKey,
+        minScore,
+        pageAction,
+      );
+    });
+
+    it('should call solveRecaptchaV3 on the instantiated TwoCaptchaService', async () => {
+      const options: IMultiCaptchaSolverOptions = {
+        apiKey,
+        captchaService: ECaptchaSolverService.TwoCaptcha,
+      };
+      const mockSolveRecaptchaV3 = jest
+        .fn()
+        .mockResolvedValue('recaptcha-v3-token-two');
+      MockTwoCaptchaService.prototype.solveRecaptchaV3 = mockSolveRecaptchaV3;
+
+      const solver = new MultiCaptchaSolver(options);
+      const result = await solver.solveRecaptchaV3(
+        websiteURL,
+        websiteKey,
+        minScore,
+        pageAction,
+      );
+
+      expect(result).toBe('recaptcha-v3-token-two');
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledTimes(1);
+      expect(mockSolveRecaptchaV3).toHaveBeenCalledWith(
+        websiteURL,
+        websiteKey,
+        minScore,
+        pageAction,
+      );
+    });
+  });
 });
