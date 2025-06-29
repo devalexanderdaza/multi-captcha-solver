@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/devalexanderdaza/multi-captcha-solver/compare/v1.3.0...v1.4.0) (2025-06-29)
+
+
+### Features
+
+* Add automatic captcha detection functionality ([6148af9](https://github.com/devalexanderdaza/multi-captcha-solver/commit/6148af9b63c72b80be8d0991f4dd63aebe5cbaf0))
+* Add comprehensive End-to-End tests for captcha detection and resolution with service integration ([def412c](https://github.com/devalexanderdaza/multi-captcha-solver/commit/def412c9440981bee1cc7691ed83769b345f5258))
+* Add integration testing framework with environment variable checks and comprehensive test cases for captcha services ([04096fd](https://github.com/devalexanderdaza/multi-captcha-solver/commit/04096fdb6377b0acd89dcaeb2637d0078378fa16))
+* Implement retry logic with customizable error handling in withRetries function ([a2b6522](https://github.com/devalexanderdaza/multi-captcha-solver/commit/a2b6522434bc992a3241a346f20fca2c4b628057))
+* Implemented support for new provider CapMonster Cloud. ([cc735f0](https://github.com/devalexanderdaza/multi-captcha-solver/commit/cc735f0360462f748d53b92bb19d13dbe990f6a3))
+* Update Jest configuration for improved test handling and coverage reporting ([1a6b2e1](https://github.com/devalexanderdaza/multi-captcha-solver/commit/1a6b2e1031a520a125b1ad5eea07de6970e9dd33))
+
 # [1.3.0](https://github.com/devalexanderdaza/multi-captcha-solver/compare/v1.2.1...v1.3.0) (2025-06-19)
 
 ### Features
