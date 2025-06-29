@@ -37,7 +37,10 @@ npm install multi-captcha-solver-adapter
 ### Basic Usage: Solving an Image Captcha
 
 ```typescript
-import { MultiCaptchaSolver, ECaptchaSolverService } from 'multi-captcha-solver-adapter';
+import {
+  MultiCaptchaSolver,
+  ECaptchaSolverService,
+} from 'multi-captcha-solver-adapter';
 
 const imageBase64 = '...'; // your captcha image in base64
 
@@ -68,7 +71,7 @@ import {
   InvalidApiKeyError,
   InsufficientBalanceError,
   CaptchaServiceError,
-  ProxyOptions
+  ProxyOptions,
 } from 'multi-captcha-solver-adapter';
 
 async function solveAdvanced() {
@@ -94,10 +97,9 @@ async function solveAdvanced() {
       'google-site-key-here',
       0.7, // minScore
       'homepage_action', // pageAction
-      proxy
+      proxy,
     );
     console.log(`reCAPTCHA v3 token obtained: ${token.substring(0, 30)}...`);
-
   } catch (error) {
     if (error instanceof InvalidApiKeyError) {
       console.error(`API Key is invalid for ${error.service}.`);
@@ -130,9 +132,9 @@ Solve Google's reCAPTCHA v2 challenges:
 
 ```typescript
 const token = await solver.solveRecaptchaV2(
-  'https://example.com',  // Website URL
-  'site-key-here',        // Google site key
-  proxy                   // Optional: proxy configuration
+  'https://example.com', // Website URL
+  'site-key-here', // Google site key
+  proxy, // Optional: proxy configuration
 );
 ```
 
@@ -142,11 +144,11 @@ Solve Google's reCAPTCHA v3 challenges:
 
 ```typescript
 const token = await solver.solveRecaptchaV3(
-  'https://example.com',  // Website URL
-  'site-key-here',        // Google site key
-  0.7,                    // Minimum score (0.1 to 0.9)
-  'submit',               // Page action
-  proxy                   // Optional: proxy configuration
+  'https://example.com', // Website URL
+  'site-key-here', // Google site key
+  0.7, // Minimum score (0.1 to 0.9)
+  'submit', // Page action
+  proxy, // Optional: proxy configuration
 );
 ```
 
@@ -156,9 +158,9 @@ Solve hCaptcha challenges:
 
 ```typescript
 const token = await solver.solveHCaptcha(
-  'https://example.com',  // Website URL
-  'site-key-here',        // hCaptcha site key
-  proxy                   // Optional: proxy configuration
+  'https://example.com', // Website URL
+  'site-key-here', // hCaptcha site key
+  proxy, // Optional: proxy configuration
 );
 ```
 
@@ -203,22 +205,27 @@ import {
   MultiCaptchaSolver,
   ECaptchaSolverService,
   InvalidApiKeyError,
-  InsufficientBalanceError
+  InsufficientBalanceError,
 } from 'multi-captcha-solver-adapter';
 
 async function demonstrateIntelligentRetries() {
   const solver = new MultiCaptchaSolver({
     apiKey: 'INVALID_KEY', // This will cause an InvalidApiKeyError
     captchaService: ECaptchaSolverService.TwoCaptcha,
-    retries: 3
+    retries: 3,
   });
 
   try {
     // This will fail immediately without retries because API key is invalid
-    const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
+    const token = await solver.solveRecaptchaV2(
+      'https://example.com',
+      'site-key',
+    );
   } catch (error) {
     if (error instanceof InvalidApiKeyError) {
-      console.log('❌ API key error detected - no retries attempted (saves time!)');
+      console.log(
+        '❌ API key error detected - no retries attempted (saves time!)',
+      );
     }
   }
 }
@@ -231,14 +238,14 @@ async function demonstrateIntelligentRetries() {
 const conservativeSolver = new MultiCaptchaSolver({
   apiKey: 'YOUR_API_KEY',
   captchaService: ECaptchaSolverService.AntiCaptcha,
-  retries: 2 // Fewer retries for faster failures
+  retries: 2, // Fewer retries for faster failures
 });
 
-// Aggressive retry configuration  
+// Aggressive retry configuration
 const aggressiveSolver = new MultiCaptchaSolver({
   apiKey: 'YOUR_API_KEY',
   captchaService: ECaptchaSolverService.TwoCaptcha,
-  retries: 5 // More retries for higher success rate
+  retries: 5, // More retries for higher success rate
 });
 ```
 
@@ -250,17 +257,17 @@ Configure proxies for solving web-based captchas:
 import { ProxyOptions } from 'multi-captcha-solver-adapter';
 
 const proxyConfig: ProxyOptions = {
-  type: 'http',           // 'http', 'https', 'socks4', or 'socks5'
-  uri: '127.0.0.1:8080',  // proxy host:port
-  username: 'user',       // optional authentication
-  password: 'pass',       // optional authentication
+  type: 'http', // 'http', 'https', 'socks4', or 'socks5'
+  uri: '127.0.0.1:8080', // proxy host:port
+  username: 'user', // optional authentication
+  password: 'pass', // optional authentication
 };
 
 // Use proxy with any web-based captcha
 const token = await solver.solveRecaptchaV2(
   'https://example.com',
   'site-key',
-  proxyConfig
+  proxyConfig,
 );
 ```
 
@@ -270,28 +277,39 @@ The library provides specific error types for better error handling and implemen
 
 ```typescript
 import {
-  MultiCaptchaError,        // Base error class
-  CaptchaServiceError,      // General API errors (won't retry)
-  InvalidApiKeyError,       // Invalid API key (won't retry)
+  MultiCaptchaError, // Base error class
+  CaptchaServiceError, // General API errors (won't retry)
+  InvalidApiKeyError, // Invalid API key (won't retry)
   InsufficientBalanceError, // Not enough balance (won't retry)
-  IpBlockedError,          // IP address blocked (won't retry)
+  IpBlockedError, // IP address blocked (won't retry)
 } from 'multi-captcha-solver-adapter';
 
 try {
-  const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
+  const token = await solver.solveRecaptchaV2(
+    'https://example.com',
+    'site-key',
+  );
 } catch (error) {
   if (error instanceof InvalidApiKeyError) {
-    console.error(`❌ Invalid API key for ${error.service} - No retries attempted`);
+    console.error(
+      `❌ Invalid API key for ${error.service} - No retries attempted`,
+    );
   } else if (error instanceof InsufficientBalanceError) {
-    console.error(`💰 Insufficient balance in ${error.service} - No retries attempted`);
+    console.error(
+      `💰 Insufficient balance in ${error.service} - No retries attempted`,
+    );
   } else if (error instanceof IpBlockedError) {
     console.error(`🚫 IP blocked by ${error.service} - No retries attempted`);
   } else if (error instanceof CaptchaServiceError) {
-    console.error(`🔧 API error in ${error.service}: ${error.message} - No retries attempted`);
+    console.error(
+      `🔧 API error in ${error.service}: ${error.message} - No retries attempted`,
+    );
   } else if (error instanceof MultiCaptchaError) {
     console.error(`📚 Library error: ${error.message}`);
   } else {
-    console.error(`🔄 Network/Generic error: ${error.message} - May have been retried`);
+    console.error(
+      `🔄 Network/Generic error: ${error.message} - May have been retried`,
+    );
   }
 }
 ```
@@ -314,13 +332,13 @@ async function handleDifferentErrorTypes() {
   } catch (error) {
     // Check if this error type would have triggered retries
     const isRetryableError = !(error instanceof CaptchaServiceError);
-    
+
     if (isRetryableError) {
       console.log('🔄 This error was retried automatically');
     } else {
       console.log('⚡ This error failed immediately (no retries)');
     }
-    
+
     throw error; // Re-throw for application handling
   }
 }

@@ -34,4 +34,5 @@ docs/
 # Environment variables
 env.json
 
+# Context file
 CONTEXT.md

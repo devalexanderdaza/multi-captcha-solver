@@ -13,11 +13,7 @@
   "includeVersion": true,
   "theme": "default",
   "categorizeByGroup": true,
-  "sort": [
-    "kind",
-    "instance-first",
-    "alphabetical"
-  ],
+  "sort": ["kind", "instance-first", "alphabetical"],
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeExternals": true,

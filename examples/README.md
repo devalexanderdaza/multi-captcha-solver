@@ -10,7 +10,7 @@ Ejemplo básico de uso de la librería para resolver diferentes tipos de captcha
 
 - Imagen captcha (base64)
 - reCAPTCHA v2
-- hCaptcha  
+- hCaptcha
 - reCAPTCHA v3
 
 ### `proxy-example.ts`
