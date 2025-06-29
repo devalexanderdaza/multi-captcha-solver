@@ -566,6 +566,24 @@ export CAPMONSTER_API_KEY=your_capmonster_api_key
 
 Integration tests will automatically skip services for which API keys are not provided, allowing you to test only the services you have access to.
 
+### End-to-End (E2E) Tests
+
+Run comprehensive E2E tests that validate the complete flow from captcha detection to resolution:
+
+```bash
+# Run E2E tests with API keys
+ANTICAPTCHA_API_KEY=your_key npm run test:integration src/__tests__/e2e.integration.spec.ts
+```
+
+E2E tests include:
+
+- **Captcha Detection**: Validates automatic captcha type detection using `CaptchaDetector`
+- **Service Integration**: Tests real API communication with captcha solving services
+- **Complete Flow**: End-to-end validation from detection to token resolution
+- **Multi-Service Support**: Tests compatibility across all supported services
+
+**Demo Page Used**: [hCaptcha Demo](https://accounts.hcaptcha.com/demo) with site key `4c672d35-0701-42b2-88c3-78380b0db560`
+
 ### Test Coverage
 
 View test coverage reports:
