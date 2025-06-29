@@ -1,10 +1,31 @@
 /**
- * Mock configurado para pruebas de integración
- * Permite que node-fetch funcione correctamente en el entorno de Jest
+ * Mock de node-fetch para pruebas unitarias
+ * Este mock solo se aplica a las pruebas unitarias estándar
  */
 
-// Mock mínimo para node-fetch que permite el funcionamiento real
-const fetch = jest.requireActual('node-fetch').default;
+interface MockResponse {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  text: () => Promise<string>;
+}
 
-export default fetch;
-export { RequestInit } from 'node-fetch';
+const mockFetch = jest.fn<Promise<MockResponse>, [string, RequestInit?]>(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    statusText: 'OK',
+    text: () => Promise.resolve('<html><body>Mock HTML</body></html>'),
+  }),
+);
+
+export default mockFetch;
+
+// También exportamos RequestInit para compatibilidad
+export interface RequestInit {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  signal?: AbortSignal;
+  timeout?: number;
+}

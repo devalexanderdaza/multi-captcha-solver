@@ -12,8 +12,6 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.(m)?js$': '$1',
   },
-  // Directorio de mocks para pruebas de integración
-  moduleDirectories: ['node_modules', '<rootDir>/src/__tests__/__mocks__'],
   // Configuración específica para pruebas de integración
   testRegex: '.*\\.integration\\.spec\\.(m)?ts$',
   testPathIgnorePatterns: [
@@ -21,7 +19,10 @@ export default {
     '/build/',
     '/coverage/',
     '/src/__tests__/setup.integration.ts',
+    '/src/__tests__/__mocks__/',
   ],
+  // Las pruebas de integración NO deben usar mocks - usar APIs reales
+  moduleDirectories: ['node_modules'],
   // Timeout extendido para llamadas reales a APIs
   testTimeout: 60000,
   // Configuración de cobertura deshabilitada para pruebas de integración
