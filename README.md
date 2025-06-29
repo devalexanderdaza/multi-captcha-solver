@@ -15,6 +15,7 @@ A powerful and easy-to-use NodeJS library that unifies multiple captcha-solving 
 - **🧩 Multi-Provider Support**: Built-in support for the most popular captcha services.
 - **🛡️ Unified Interface**: Use the same code to talk to different services. Switch providers by changing just one line!
 - **🦾 Resilient & Robust**: Automatic retry system with exponential backoff and custom error handling.
+- **🧠 Intelligent Retry Logic**: Smart retry system that avoids unnecessary retries on permanent errors like invalid API keys.
 - **🌐 Modern Support**: Solves ImageToText, reCAPTCHA v2/v3, hCaptcha and more.
 - **🕵️ Proxy Support**: Send your proxies to solving services for complex scraping tasks.
 - **💯 Strictly Typed**: Developed 100% in TypeScript for safer and more predictable code.
@@ -161,9 +162,11 @@ const token = await solver.solveHCaptcha(
 );
 ```
 
-## 🔄 Retry Logic
+## 🔄 Intelligent Retry Logic
 
-The library includes automatic retry logic with exponential backoff:
+The library includes a sophisticated retry system with exponential backoff and intelligent error handling that automatically distinguishes between retryable and non-retryable errors.
+
+### Automatic Retry Behavior
 
 ```typescript
 const solver = new MultiCaptchaSolver({
@@ -174,6 +177,69 @@ const solver = new MultiCaptchaSolver({
 
 // The solver will automatically retry failed requests with increasing delays
 const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
+```
+
+### Smart Error Classification
+
+The library intelligently handles different types of errors:
+
+**✅ Will Retry (Network/Temporary Errors):**
+
+- Network timeouts and connection errors
+- Temporary server errors (5xx HTTP status codes)
+- Generic errors that might be transient
+
+**❌ Won't Retry (Permanent API Errors):**
+
+- `InvalidApiKeyError` - Invalid or malformed API key
+- `InsufficientBalanceError` - Account has no balance
+- `IpBlockedError` - IP address is blocked by the service
+- Other specific `CaptchaServiceError` instances
+
+### Benefits of Intelligent Retries
+
+```typescript
+import {
+  MultiCaptchaSolver,
+  ECaptchaSolverService,
+  InvalidApiKeyError,
+  InsufficientBalanceError
+} from 'multi-captcha-solver-adapter';
+
+async function demonstrateIntelligentRetries() {
+  const solver = new MultiCaptchaSolver({
+    apiKey: 'INVALID_KEY', // This will cause an InvalidApiKeyError
+    captchaService: ECaptchaSolverService.TwoCaptcha,
+    retries: 3
+  });
+
+  try {
+    // This will fail immediately without retries because API key is invalid
+    const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
+  } catch (error) {
+    if (error instanceof InvalidApiKeyError) {
+      console.log('❌ API key error detected - no retries attempted (saves time!)');
+    }
+  }
+}
+```
+
+### Retry Configuration
+
+```typescript
+// Conservative retry configuration
+const conservativeSolver = new MultiCaptchaSolver({
+  apiKey: 'YOUR_API_KEY',
+  captchaService: ECaptchaSolverService.AntiCaptcha,
+  retries: 2 // Fewer retries for faster failures
+});
+
+// Aggressive retry configuration  
+const aggressiveSolver = new MultiCaptchaSolver({
+  apiKey: 'YOUR_API_KEY',
+  captchaService: ECaptchaSolverService.TwoCaptcha,
+  retries: 5 // More retries for higher success rate
+});
 ```
 
 ## 🕵️ Proxy Support
@@ -198,30 +264,66 @@ const token = await solver.solveRecaptchaV2(
 );
 ```
 
-## 🛡️ Error Handling
+## 🛡️ Error Handling & Retry Behavior
 
-The library provides specific error types for better error handling:
+The library provides specific error types for better error handling and implements intelligent retry logic based on error types:
 
 ```typescript
 import {
   MultiCaptchaError,        // Base error class
-  CaptchaServiceError,      // General API errors
-  InvalidApiKeyError,       // Invalid API key
-  InsufficientBalanceError, // Not enough balance
-  IpBlockedError,          // IP address blocked
+  CaptchaServiceError,      // General API errors (won't retry)
+  InvalidApiKeyError,       // Invalid API key (won't retry)
+  InsufficientBalanceError, // Not enough balance (won't retry)
+  IpBlockedError,          // IP address blocked (won't retry)
 } from 'multi-captcha-solver-adapter';
 
 try {
   const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
 } catch (error) {
   if (error instanceof InvalidApiKeyError) {
-    console.error(`Invalid API key for ${error.service}`);
+    console.error(`❌ Invalid API key for ${error.service} - No retries attempted`);
   } else if (error instanceof InsufficientBalanceError) {
-    console.error(`Insufficient balance in ${error.service}`);
+    console.error(`💰 Insufficient balance in ${error.service} - No retries attempted`);
   } else if (error instanceof IpBlockedError) {
-    console.error(`IP blocked by ${error.service}`);
+    console.error(`🚫 IP blocked by ${error.service} - No retries attempted`);
   } else if (error instanceof CaptchaServiceError) {
-    console.error(`API error in ${error.service}: ${error.message}`);
+    console.error(`🔧 API error in ${error.service}: ${error.message} - No retries attempted`);
+  } else if (error instanceof MultiCaptchaError) {
+    console.error(`📚 Library error: ${error.message}`);
+  } else {
+    console.error(`🔄 Network/Generic error: ${error.message} - May have been retried`);
+  }
+}
+```
+
+### Error Classification for Retries
+
+Understanding which errors trigger retries helps you build more efficient applications:
+
+```typescript
+async function handleDifferentErrorTypes() {
+  const solver = new MultiCaptchaSolver({
+    apiKey: 'YOUR_API_KEY',
+    captchaService: ECaptchaSolverService.TwoCaptcha,
+    retries: 3
+  });
+
+  try {
+    const token = await solver.solveRecaptchaV2('https://example.com', 'site-key');
+    console.log('✅ Success:', token);
+  } catch (error) {
+    // Check if this error type would have triggered retries
+    const isRetryableError = !(error instanceof CaptchaServiceError);
+    
+    if (isRetryableError) {
+      console.log('🔄 This error was retried automatically');
+    } else {
+      console.log('⚡ This error failed immediately (no retries)');
+    }
+    
+    throw error; // Re-throw for application handling
+  }
+}
   } else if (error instanceof MultiCaptchaError) {
     console.error(`Library error: ${error.message}`);
   }

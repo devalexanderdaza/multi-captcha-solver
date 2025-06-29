@@ -33,3 +33,5 @@ docs/
 
 # Environment variables
 env.json
+
+CONTEXT.md
