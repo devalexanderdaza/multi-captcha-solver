@@ -536,6 +536,45 @@ Check out the [examples](./examples/) directory for complete working examples:
 - **[Basic Example](./examples/example.ts)** - Basic usage for all captcha types
 - **[Proxy Example](./examples/proxy-example.ts)** - Advanced usage with proxy configuration
 
+## 🧪 Testing
+
+This library includes comprehensive test suites to ensure reliability and quality:
+
+### Unit Tests
+
+Run the standard unit tests with mocked dependencies:
+
+```bash
+npm test
+```
+
+### Integration Tests
+
+Run integration tests with real API calls to captcha services:
+
+```bash
+npm run test:integration
+```
+
+**Note:** Integration tests require valid API keys set as environment variables:
+
+```bash
+export TWOCAPTCHA_API_KEY=your_2captcha_api_key
+export ANTICAPTCHA_API_KEY=your_anticaptcha_api_key
+export CAPMONSTER_API_KEY=your_capmonster_api_key
+```
+
+Integration tests will automatically skip services for which API keys are not provided, allowing you to test only the services you have access to.
+
+### Test Coverage
+
+View test coverage reports:
+
+```bash
+npm test
+# Coverage report will be generated in ./coverage/lcov-report/index.html
+```
+
 ## 💖 Contributing
 
 Contributions are the heart of the open-source community! We are delighted to accept your help. Please check out our **[Contribution Guide](./CONTRIBUTING.md)** to get started.
