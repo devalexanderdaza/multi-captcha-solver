@@ -24,6 +24,7 @@ A powerful and easy-to-use NodeJS library that unifies multiple captcha-solving 
 
 - [x] 2Captcha
 - [x] Anti-Captcha
+- [x] CapMonster Cloud
 - _... and more coming soon!_
 
 ## 📦 Installation
@@ -161,6 +162,42 @@ const token = await solver.solveHCaptcha(
   'https://example.com', // Website URL
   'site-key-here', // hCaptcha site key
   proxy, // Optional: proxy configuration
+);
+```
+
+## 🎯 Service-Specific Examples
+
+### Using CapMonster Cloud
+
+CapMonster Cloud offers high-quality captcha solving with competitive pricing:
+
+```typescript
+import {
+  MultiCaptchaSolver,
+  ECaptchaSolverService,
+} from 'multi-captcha-solver-adapter';
+
+const solver = new MultiCaptchaSolver({
+  apiKey: 'YOUR_CAPMONSTER_API_KEY',
+  captchaService: ECaptchaSolverService.CapMonster,
+  retries: 3,
+});
+
+// CapMonster excels at image captchas
+const imageSolution = await solver.solveImageCaptcha(base64Image);
+
+// Supports all modern captcha types
+const recaptchaToken = await solver.solveRecaptchaV2(
+  'https://example.com',
+  'site-key',
+);
+
+// reCAPTCHA v3 with high accuracy
+const v3Token = await solver.solveRecaptchaV3(
+  'https://example.com',
+  'site-key',
+  0.7,
+  'homepage',
 );
 ```
 
@@ -342,10 +379,6 @@ async function handleDifferentErrorTypes() {
     throw error; // Re-throw for application handling
   }
 }
-  } else if (error instanceof MultiCaptchaError) {
-    console.error(`Library error: ${error.message}`);
-  }
-}
 ```
 
 ## 🔧 API Reference
@@ -376,6 +409,7 @@ new MultiCaptchaSolver(options: IMultiCaptchaSolverOptions)
 
 - `ECaptchaSolverService.TwoCaptcha` - 2Captcha service
 - `ECaptchaSolverService.AntiCaptcha` - Anti-Captcha service
+- `ECaptchaSolverService.CapMonster` - CapMonster Cloud service
 
 ## 📚 Examples
 

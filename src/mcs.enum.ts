@@ -30,10 +30,15 @@ export enum ECaptchaSolverService {
    */
   AntiCaptcha = 'anticaptcha',
 
+  /**
+   * CapMonster service - Advanced captcha solving service with high success rate.
+   * @see https://capmonster.cloud
+   */
+  CapMonster = 'capmonster',
+
   // TODO - Implement the following captcha solver services
   // DeathByCaptcha = "deathbycaptcha",
   // ImageTyperz = "imagetyperz",
   // RuCaptcha = "rucaptcha",
   // CaptchasIO = "captchasio",
-  // CapMonster = "capmonster",
 }

@@ -11,6 +11,7 @@ import {
   IMultiCaptchaSolverOptions,
 } from './mcs.interface.js';
 import { AntiCaptchaService } from './services/anticaptcha.service.js';
+import { CapMonsterService } from './services/capmonster.service.js';
 import { TwoCaptchaService } from './services/twocaptcha.service.js';
 import { ProxyOptions } from './types/proxy.types.js';
 import { withRetries } from './utils/retry.helper.js';
@@ -20,6 +21,7 @@ const solverServiceMap: {
 } = {
   [ECaptchaSolverService.AntiCaptcha]: AntiCaptchaService,
   [ECaptchaSolverService.TwoCaptcha]: TwoCaptchaService,
+  [ECaptchaSolverService.CapMonster]: CapMonsterService,
 };
 
 /**

@@ -50,6 +50,7 @@
     "scraping"
   ],
   "dependencies": {
+    "@zennolab_com/capmonstercloud-client": "^2.0.0",
     "2captcha": "^3.0.7",
     "anticaptcha": "^2.2.0",
     "tslib": "~2.6"

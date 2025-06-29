@@ -14,8 +14,14 @@ const base64string: string =
 
 // MultiCaptchaSolver options
 const options: IMultiCaptchaSolverOptions = {
-  apiKey: 'YOUR_API_KEY', // Replace with your API key from the captcha service provider (e.g. 2Captcha, AntiCaptcha, etc.)
-  captchaService: ECaptchaSolverService.AntiCaptcha, // Replace with the captcha service provider you want to use (e.g. 2Captcha, AntiCaptcha, etc.)
+  apiKey: 'YOUR_API_KEY', // Replace with your API key from the captcha service provider (e.g. 2Captcha, AntiCaptcha, CapMonster, etc.)
+  captchaService: ECaptchaSolverService.AntiCaptcha, // Replace with the captcha service provider you want to use (e.g. 2Captcha, AntiCaptcha, CapMonster, etc.)
+};
+
+// Example with CapMonster Cloud
+const capMonsterOptions: IMultiCaptchaSolverOptions = {
+  apiKey: 'YOUR_CAPMONSTER_API_KEY',
+  captchaService: ECaptchaSolverService.CapMonster,
 };
 
 /**
@@ -72,7 +78,47 @@ export const solveNewCaptchaTypesExample = async (
   }
 };
 
+/**
+ * Test the new CapMonster Cloud service provider.
+ */
+export const solveCapMonsterExample = async (): Promise<void> => {
+  console.info('--- Testing CapMonster Cloud ---');
+
+  // Create a new instance of MultiCaptchaSolver with CapMonster
+  const solver: MultiCaptchaSolver = new MultiCaptchaSolver(capMonsterOptions);
+
+  try {
+    // Get the balance of CapMonster Cloud service
+    const balance: number = await solver.getBalance();
+    console.info(`Balance on CapMonster Cloud: ${balance}`);
+
+    // Solve image captcha with CapMonster
+    const imageSolution: string = await solver.solveImageCaptcha(base64string);
+    console.info(`Image captcha solution with CapMonster: ${imageSolution}`);
+
+    // Test hCaptcha with CapMonster
+    const hCaptchaResult = await solver.solveHCaptcha(
+      'https://accounts.hcaptcha.com/demo',
+      '4c672d35-0701-42b2-88c3-78380b0db560',
+    );
+    console.info(`hCaptcha solution with CapMonster: ${hCaptchaResult}`);
+
+    // Test reCAPTCHA v3 with CapMonster (proxyless)
+    const recaptchaV3Result = await solver.solveRecaptchaV3(
+      'https://www.google.com/recaptcha/api2/demo',
+      '6Le-wvkSAAAAAPBMRTvw0Q4Muexq1bi0DJwx_mJ-',
+      0.7, // minimum score
+      'homepage', // page action
+    );
+    console.info(`reCAPTCHA v3 solution with CapMonster: ${recaptchaV3Result}`);
+  } catch (error) {
+    console.error('Error solving captchas with CapMonster:', error);
+  }
+};
+
 // Run the example
 solveCaptchaExample(options);
 // Uncomment to test the new captcha types
 // solveNewCaptchaTypesExample(options);
+// Uncomment to test CapMonster Cloud
+// solveCapMonsterExample();
