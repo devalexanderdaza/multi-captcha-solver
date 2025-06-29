@@ -134,4 +134,91 @@ describe('withRetries', () => {
     const arrayResult = await withRetries(arrayFn, 3, 50);
     expect(arrayResult).toEqual([1, 2, 3]);
   });
+
+  // NEW TESTS FOR retryOn functionality
+  describe('retryOn functionality', () => {
+    it('should retry when retryOn returns true', async () => {
+      const mockError = new Error('Retryable error');
+      const mockFn = jest
+        .fn()
+        .mockRejectedValueOnce(mockError)
+        .mockRejectedValueOnce(mockError)
+        .mockResolvedValue('success on third try');
+
+      const retryOnMock = jest.fn().mockReturnValue(true);
+
+      const result = await withRetries(mockFn, 3, 50, retryOnMock);
+
+      expect(result).toBe('success on third try');
+      expect(mockFn).toHaveBeenCalledTimes(3);
+      expect(retryOnMock).toHaveBeenCalledTimes(2); // Called for each error
+      expect(retryOnMock).toHaveBeenCalledWith(mockError);
+    });
+
+    it('should not retry when retryOn returns false', async () => {
+      const mockError = new Error('Non-retryable error');
+      const mockFn = jest.fn().mockRejectedValue(mockError);
+      const retryOnMock = jest.fn().mockReturnValue(false);
+
+      await expect(withRetries(mockFn, 3, 50, retryOnMock)).rejects.toThrow(
+        'Non-retryable error',
+      );
+
+      expect(mockFn).toHaveBeenCalledTimes(1); // Called only once
+      expect(retryOnMock).toHaveBeenCalledTimes(1);
+      expect(retryOnMock).toHaveBeenCalledWith(mockError);
+    });
+
+    it('should use default behavior when retryOn is not provided', async () => {
+      const mockError = new Error('Default behavior error');
+      const mockFn = jest.fn().mockRejectedValue(mockError);
+
+      // Should retry by default (same as original behavior)
+      await expect(withRetries(mockFn, 3, 50)).rejects.toThrow(
+        'Default behavior error',
+      );
+
+      expect(mockFn).toHaveBeenCalledTimes(3);
+    });
+
+    it('should not delay when retryOn returns false on first error', async () => {
+      const mockError = new Error('Immediate non-retryable error');
+      const mockFn = jest.fn().mockRejectedValue(mockError);
+      const retryOnMock = jest.fn().mockReturnValue(false);
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+
+      await expect(withRetries(mockFn, 3, 100, retryOnMock)).rejects.toThrow(
+        'Immediate non-retryable error',
+      );
+
+      expect(mockFn).toHaveBeenCalledTimes(1);
+      expect(setTimeoutSpy).not.toHaveBeenCalled(); // No delay when not retrying
+
+      setTimeoutSpy.mockRestore();
+    });
+
+    it('should handle mixed retryOn responses correctly', async () => {
+      const retryableError = new Error('Retryable error');
+      const nonRetryableError = new Error('Non-retryable error');
+
+      const mockFn = jest
+        .fn()
+        .mockRejectedValueOnce(retryableError)
+        .mockRejectedValueOnce(nonRetryableError);
+
+      const retryOnMock = jest
+        .fn()
+        .mockReturnValueOnce(true) // Retry the first error
+        .mockReturnValueOnce(false); // Don't retry the second error
+
+      await expect(withRetries(mockFn, 3, 50, retryOnMock)).rejects.toThrow(
+        'Non-retryable error',
+      );
+
+      expect(mockFn).toHaveBeenCalledTimes(2);
+      expect(retryOnMock).toHaveBeenCalledTimes(2);
+      expect(retryOnMock).toHaveBeenNthCalledWith(1, retryableError);
+      expect(retryOnMock).toHaveBeenNthCalledWith(2, nonRetryableError);
+    });
+  });
 });

@@ -4,6 +4,7 @@
  * Github: https://github.com/devalexanderdaza
  */
 
+import { CaptchaServiceError } from './errors/api.error.js';
 import { ECaptchaSolverService } from './mcs.enum.js';
 import {
   IMultiCaptchaSolver,
@@ -68,6 +69,19 @@ export class MultiCaptchaSolver {
   }
 
   /**
+   * Determines if an error should trigger a retry.
+   * Only retries on generic errors or network errors, not on specific API errors.
+   *
+   * @private
+   * @param error - The error to evaluate
+   * @returns true if the error should trigger a retry, false otherwise
+   */
+  private isRetryableError(error: Error): boolean {
+    // Don't retry on specific CaptchaServiceError instances (API errors)
+    return !(error instanceof CaptchaServiceError);
+  }
+
+  /**
    * Retrieves the current balance from the selected captcha solving service.
    *
    * @returns A promise that resolves with the current account balance in USD
@@ -86,6 +100,7 @@ export class MultiCaptchaSolver {
       () => this.captchaSolver.getBalance(),
       this.retries,
       this.initialDelayMs,
+      (error) => this.isRetryableError(error),
     );
   }
 
@@ -109,6 +124,7 @@ export class MultiCaptchaSolver {
       () => this.captchaSolver.solveImageCaptcha(base64string),
       this.retries,
       this.initialDelayMs,
+      (error) => this.isRetryableError(error),
     );
   }
 
@@ -140,6 +156,7 @@ export class MultiCaptchaSolver {
       () => this.captchaSolver.solveRecaptchaV2(websiteURL, websiteKey, proxy),
       this.retries,
       this.initialDelayMs,
+      (error) => this.isRetryableError(error),
     );
   }
 
@@ -171,6 +188,7 @@ export class MultiCaptchaSolver {
       () => this.captchaSolver.solveHCaptcha(websiteURL, websiteKey, proxy),
       this.retries,
       this.initialDelayMs,
+      (error) => this.isRetryableError(error),
     );
   }
 
@@ -215,6 +233,7 @@ export class MultiCaptchaSolver {
         ),
       this.retries,
       this.initialDelayMs,
+      (error) => this.isRetryableError(error),
     );
   }
 }
