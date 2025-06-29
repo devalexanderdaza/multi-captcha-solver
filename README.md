@@ -308,6 +308,124 @@ const token = await solver.solveRecaptchaV2(
 );
 ```
 
+## 🔍 Automatic Captcha Detection
+
+The library includes a powerful `CaptchaDetector` utility that can automatically identify captcha types present on web pages. This is particularly useful for automation workflows where you need to determine what type of captcha to solve.
+
+### Basic Detection
+
+```typescript
+import { CaptchaDetector, CaptchaType } from 'multi-captcha-solver-adapter';
+
+const detector = new CaptchaDetector();
+
+// Detect captcha on a webpage
+const captchaType = await detector.detect('https://example.com/login');
+
+switch (captchaType) {
+  case CaptchaType.RECAPTCHA_V2:
+    console.log('Found reCAPTCHA v2 - use solveRecaptchaV2()');
+    break;
+  case CaptchaType.RECAPTCHA_V3:
+    console.log('Found reCAPTCHA v3 - use solveRecaptchaV3()');
+    break;
+  case CaptchaType.HCAPTCHA:
+    console.log('Found hCaptcha - use solveHCaptcha()');
+    break;
+  case null:
+    console.log('No captcha detected');
+    break;
+}
+```
+
+### Detection with Proxy
+
+```typescript
+const detector = new CaptchaDetector({
+  timeout: 15000, // 15 second timeout
+  userAgent: 'Custom User Agent',
+});
+
+const proxy = {
+  type: 'http' as const,
+  uri: '127.0.0.1:8080',
+  username: 'proxy_user',
+  password: 'proxy_pass',
+};
+
+const captchaType = await detector.detect('https://example.com', proxy);
+```
+
+### Advanced Usage with Automatic Solving
+
+```typescript
+async function autoSolveCaptcha(url: string, siteKey?: string) {
+  const detector = new CaptchaDetector();
+  const solver = new MultiCaptchaSolver({
+    apiKey: 'YOUR_API_KEY',
+    captchaService: ECaptchaSolverService.CapMonster,
+  });
+
+  // Detect what type of captcha is present
+  const captchaType = await detector.detect(url);
+
+  if (!captchaType) {
+    console.log('No captcha found on page');
+    return null;
+  }
+
+  // Solve based on detected type
+  switch (captchaType) {
+    case CaptchaType.RECAPTCHA_V2:
+      if (!siteKey) throw new Error('Site key required for reCAPTCHA v2');
+      return await solver.solveRecaptchaV2(url, siteKey);
+      
+    case CaptchaType.RECAPTCHA_V3:
+      if (!siteKey) throw new Error('Site key required for reCAPTCHA v3');
+      return await solver.solveRecaptchaV3(url, siteKey, 0.7, 'submit');
+      
+    case CaptchaType.HCAPTCHA:
+      if (!siteKey) throw new Error('Site key required for hCaptcha');
+      return await solver.solveHCaptcha(url, siteKey);
+      
+    default:
+      throw new Error(`Unsupported captcha type: ${captchaType}`);
+  }
+}
+
+// Usage
+const token = await autoSolveCaptcha(
+  'https://example.com/login',
+  '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+);
+```
+
+### Supported Detection Patterns
+
+The `CaptchaDetector` can identify captchas using various patterns:
+
+**reCAPTCHA v2:**
+
+- Google reCAPTCHA scripts (`google.com/recaptcha`)
+- `g-recaptcha` CSS classes
+- `grecaptcha.render()` function calls
+- reCAPTCHA iframes
+
+**reCAPTCHA v3:**
+
+- `grecaptcha.execute()` function calls
+- `action` parameters in scripts
+- `render=` parameter in script URLs
+
+**hCaptcha:**
+
+- hCaptcha scripts (`hcaptcha.com`, `js.hcaptcha.com`)
+- `h-captcha` CSS classes
+- `hcaptcha.render()` function calls
+- hCaptcha iframes
+
+The detector is designed to work with modern web applications including Single Page Applications (SPAs) built with React, Vue, Angular, Svelte, and other frameworks.
+
 ## 🛡️ Error Handling & Retry Behavior
 
 The library provides specific error types for better error handling and implements intelligent retry logic based on error types:

@@ -256,3 +256,6 @@ export type {
   IMultiCaptchaSolverOptions,
 } from './mcs.interface.js';
 export type { ProxyOptions } from './types/proxy.types.js';
+
+// Export CaptchaDetector utility
+export { CaptchaDetector, CaptchaType } from './utils/captcha-detector.js';

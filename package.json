@@ -50,9 +50,13 @@
     "scraping"
   ],
   "dependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node-fetch": "^2.6.12",
     "@zennolab_com/capmonstercloud-client": "^2.0.0",
     "2captcha": "^3.0.7",
     "anticaptcha": "^2.2.0",
+    "jsdom": "^26.1.0",
+    "node-fetch": "^3.3.2",
     "tslib": "~2.6"
   },
   "devDependencies": {

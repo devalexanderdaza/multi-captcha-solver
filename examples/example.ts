@@ -116,9 +116,60 @@ export const solveCapMonsterExample = async (): Promise<void> => {
   }
 };
 
+/**
+ * Demonstrate automatic captcha detection and solving.
+ */
+export const captchaDetectionExample = async (): Promise<void> => {
+  console.info('--- Testing Automatic Captcha Detection ---');
+
+  const { CaptchaDetector, CaptchaType } = await import(
+    '../src/utils/captcha-detector.js'
+  );
+
+  const detector = new CaptchaDetector({
+    timeout: 10000,
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  });
+
+  try {
+    // Test detection on a demo page
+    console.info('Detecting captcha on hCaptcha demo page...');
+    const captchaType = await detector.detect(
+      'https://accounts.hcaptcha.com/demo',
+    );
+
+    if (captchaType) {
+      console.info(`Detected captcha type: ${captchaType}`);
+
+      // Example of how to use the detection result
+      switch (captchaType) {
+        case CaptchaType.HCAPTCHA:
+          console.info('✅ hCaptcha detected - would use solveHCaptcha()');
+          break;
+        case CaptchaType.RECAPTCHA_V2:
+          console.info(
+            '✅ reCAPTCHA v2 detected - would use solveRecaptchaV2()',
+          );
+          break;
+        case CaptchaType.RECAPTCHA_V3:
+          console.info(
+            '✅ reCAPTCHA v3 detected - would use solveRecaptchaV3()',
+          );
+          break;
+      }
+    } else {
+      console.info('No captcha detected');
+    }
+  } catch (error) {
+    console.error('Error detecting captcha:', error);
+  }
+};
+
 // Run the example
 solveCaptchaExample(options);
 // Uncomment to test the new captcha types
 // solveNewCaptchaTypesExample(options);
 // Uncomment to test CapMonster Cloud
 // solveCapMonsterExample();
+// Uncomment to test automatic captcha detection
+// captchaDetectionExample();
