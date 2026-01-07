@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/devalexanderdaza/multi-captcha-solver/compare/v1.4.0...v1.5.0) (2026-01-07)
+
+
+### Features
+
+* Add files, main, and exports fields to package.json for proper type exposure ([9797313](https://github.com/devalexanderdaza/multi-captcha-solver/commit/9797313a2c480224bbc6f7a6a12fc7f3ed9f8354))
+
 # [1.4.0](https://github.com/devalexanderdaza/multi-captcha-solver/compare/v1.3.0...v1.4.0) (2025-06-29)
 
 
