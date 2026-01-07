@@ -3,6 +3,20 @@
   "version": "1.1.2",
   "description": "Node.js module that enables solving numeric, alphanumeric, Google reCAPTCHA, and more using multiple services, including Anti-Captcha and 2Captcha.",
   "type": "module",
+  "files": [
+    "src"
+  ],
+  "main": "src/main.js",
+  "exports": {
+    ".": {
+      "import": "./src/main.js",
+      "types": "./src/main.d.ts"
+    },
+    "./errors": {
+      "import": "./src/errors/index.js",
+      "types": "./src/errors/index.d.ts"
+    }
+  },
   "author": {
     "name": "Alexander Daza",
     "email": "dev.alexander.daza@gmail.com",
